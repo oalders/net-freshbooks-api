@@ -4,9 +4,9 @@ use strict;
 use warnings;
 
 my %CONFIG = (
-    test_email   => 'evdb@hinuhinu.com',
-    account_name => 'hinuhinutest',
-    auth_token   => '0af3d24bff8f7f0d6ccc36864212db7f',
+    test_email   => 'olaf@raybec.com',
+    account_name => 'netfreshbooksapi',
+    auth_token   => '421e839d73a13c7936e2f91822cff121',
 );
 
 sub get {

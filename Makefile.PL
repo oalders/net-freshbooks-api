@@ -11,6 +11,7 @@ WriteMakefile(
         'Carp'                  => 0,
         'Class::Accessor::Fast' => 0,
         'Clone'                 => 0,
+        'Data::Dump'            => 0,
         'Data::Dumper'          => 0,
         'Lingua::EN::Inflect'   => 0,
         'LWP::UserAgent'        => 0,

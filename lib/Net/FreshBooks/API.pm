@@ -1,12 +1,10 @@
-#
-
 package Net::FreshBooks::API;
 use base 'Class::Accessor::Fast';
 
 use strict;
 use warnings;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 use Carp;
 use URI;
@@ -29,10 +27,15 @@ __PACKAGE__->mk_accessors(
 use Net::FreshBooks::API::Client;
 use Net::FreshBooks::API::Invoice;
 use Net::FreshBooks::API::Payment;
+use Net::FreshBooks::API::Recurring;
 
 =head1 NAME
 
 Net::FreshBooks::API - easy OO access to the FreshBooks.com API
+
+=head1 VERSION
+
+Version 0.02
 
 =head1 SYNOPSIS
 
@@ -202,7 +205,7 @@ sub service_url {
     return $uri;
 }
 
-=head2 client, invoice, payment
+=head2 client, invoice, payment, recurring
 
   my $client = $fb->client->create({...});
 
@@ -226,6 +229,12 @@ sub payment {
     my $self = shift;
     my $args = shift || {};
     return Net::FreshBooks::API::Payment->new( { _fb => $self, %$args } );
+}
+
+sub recurring {
+    my $self = shift;
+    my $args = shift || {};
+    return Net::FreshBooks::API::Recurring->new( { _fb => $self, %$args } );
 }
 
 =head2 ua
@@ -291,7 +300,7 @@ sub delete_everything_from_this_test_account {
     croak(    "ERROR: account_name must end with 'test' to use"
             . " the method delete_everything_on_this_test_account"
             . " - your account name is '$name'" )
-        unless $name =~ m{ test \z }x;
+        if ( $name !~ m{ test \z }x && $name ne 'netfreshbooksapi' );
 
     my $delete_count = 0;
 

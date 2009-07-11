@@ -6,6 +6,7 @@ lib/Net/FreshBooks/API/InvoiceLine.pm
 lib/Net/FreshBooks/API/Iterator.pm
 lib/Net/FreshBooks/API/Links.pm
 lib/Net/FreshBooks/API/Payment.pm
+lib/Net/FreshBooks/API/Recurring.pm
 Makefile.PL
 MANIFEST
 MANIFEST.SKIP
