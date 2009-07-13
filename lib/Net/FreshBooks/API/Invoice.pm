@@ -90,12 +90,12 @@ Send the invoice either by email or by snail mail.
 
 sub send_by_email {
     my $self = shift;
-    $self->_send_using('sendByEmail');
+    return $self->_send_using('sendByEmail');
 }
 
 sub send_by_snail_mail {
     my $self = shift;
-    $self->_send_using('sendBySnailMail');
+    return $self->_send_using('sendBySnailMail');
 }
 
 sub _send_using {

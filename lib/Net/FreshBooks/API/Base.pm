@@ -5,7 +5,7 @@ use strict;
 use warnings;
 
 use Data::Dump qw( dump );
-use Carp;
+use Carp qw( croak );
 use Clone qw(clone);
 
 use Net::FreshBooks::API::Iterator;
@@ -110,7 +110,7 @@ sub update {
     my %args = ();
     $args{$_} = $self->$_ for ( $self->field_names_rw, $self->id_field );
     
-    $self->_fb->log( debug => dump( \%args ) );
+    $self->_fb->_log( debug => dump( \%args ) );
     
     my $res = $self->send_request(
         {   _method         => $method,
@@ -153,12 +153,12 @@ sub _fill_in_from_node {
 
     # cleanup all the keys
     delete $self->{$_}    #
-        for grep { !m/^_/ } keys %$self;
+        for grep { !m/^_/x } keys %$self;
 
     my $fields_config = $self->fields;
 
     # copy across the new values provided
-    foreach my $key ( grep { !m/^_/ } keys %$fields_config ) {
+    foreach my $key ( grep { !m/^_/x } keys %$fields_config ) {
 
         my $xpath .= sprintf "//%s/%s", $self->node_name, $key;
 
@@ -220,7 +220,8 @@ Delete the given object.
 
 =cut
 
-sub delete {
+sub delete { ## no critic
+    ## use critic
     my $self = shift;
 
     my $method   = $self->method_string('delete');
@@ -257,21 +258,21 @@ sub send_request {
     
     my $pattern = join "|", keys %frequency_fix;
 
-    $fb->log( debug => "Sending request for $method" );
+    $fb->_log( debug => "Sending request for $method" );
 
     my $request_xml   = $self->parameters_to_request_xml($args);
     
     $request_xml =~ s{<frequency>($pattern)</frequency>}{<frequency>$frequency_fix{$1}</frequency>}gxms;
     
-    $fb->log( debug => $request_xml );
+    $fb->_log( debug => $request_xml );
     
     my $return_xml    = $self->send_xml_to_freshbooks($request_xml);
     
-    $fb->log( debug => $return_xml );
+    $fb->_log( debug => $return_xml );
     
     my $response_node = $self->response_xml_to_node($return_xml);
 
-    $fb->log( debug => "Received response for $method" );
+    $fb->_log( debug => "Received response for $method" );
 
     return $response_node;
 }
@@ -302,7 +303,7 @@ Returns the name that should be used in the API for this class.
 sub api_name {
     my $self = shift;
     my $name = ref($self) || $self;
-    $name =~ s{^.*::}{};
+    $name =~ s{^.*::}{}x;
     return lc $name;
 }
 
@@ -343,7 +344,8 @@ Return the names of all the fields.
 
 sub field_names {
     my $self = shift;
-    return sort keys %{ $self->fields };
+    my @names = sort keys %{ $self->fields };
+    return @names;
 }
 
 =head2 field_names_rw
@@ -357,9 +359,12 @@ Return the names of all the fields that are marked as read and write.
 sub field_names_rw {
     my $self   = shift;
     my $fields = $self->fields;
-    return sort
+    
+    my @names = sort
         grep { $fields->{$_}{mutable} }
         keys %$fields;
+        
+    return @names;
 }
 
 =head2 parameters_to_request_xml
@@ -388,6 +393,13 @@ sub parameters_to_request_xml {
     return $dom->toString(1);
 }
 
+=head2 construct_element( $element, $hashref )
+
+Requires an XML::LibXML::Element object, followed by a HASHREF of attributes,
+text nodes, nested values or child elements or some combination thereof.
+
+=cut
+
 sub construct_element {
     my $self    = shift;
     my $element = shift;
@@ -411,7 +423,7 @@ sub construct_element {
         elsif ( ref $val eq 'ARRAY' ) {
 
             my $singular_key = $plural_to_singular{$key}
-                || die "couldnot convert '$key' to singular";
+                || croak "couldnot convert '$key' to singular";
 
             my $wrapper = XML::LibXML::Element->new($key);
             $element->addChild($wrapper);
@@ -430,6 +442,8 @@ sub construct_element {
         }
 
     }
+    
+    return;
 }
 
 =head2 response_xml_to_node
@@ -442,7 +456,7 @@ Take XML from FB and turn it into a datastructure that is easier to work with.
 
 sub response_xml_to_node {
     my $self = shift;
-    my $xml = shift || die "No XML passed in";
+    my $xml = shift || croak "No XML passed in";
 
     # get rid of any namespaces that will prevent simple xpath expressions
     $xml =~ s{ \s+ xmlns=\S+ }{}xg;
@@ -485,11 +499,11 @@ sub send_xml_to_freshbooks {
         $xml_to_send         # content
     );
 
-    $fb->clog($request);
+    $fb->_clog($request);
 
     my $response = $ua->request($request);
 
-    $fb->clog($response);
+    $fb->_clog($response);
 
     croak "FreshBooks request failed: " . $response->status_line
         unless $response->is_success;

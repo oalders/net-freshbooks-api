@@ -6,14 +6,10 @@ use warnings;
 
 our $VERSION = '0.02';
 
-use Carp;
+use Carp qw( carp croak );
 use URI;
 use Data::Dumper;
 use Path::Class;
-
-# use Log::Log4perl;
-# Log::Log4perl->easy_init('OFF')
-#     unless Log::Log4perl->initialized();
 
 __PACKAGE__->mk_accessors(
     'account_name',         #
@@ -173,8 +169,8 @@ sub new {
         if ( ref $args->{verbose} ne 'CODE' ) {
             $args->{verbose} = sub {
                 my ( $level, $message ) = @_;
-                $message .= "\n" if $message !~ m{\n/z};
-                warn "$level: $message";
+                $message .= "\n" if $message !~ m{\n/z}x;
+                carp "$level: $message";
             };
         }
     } else {
@@ -187,7 +183,7 @@ sub new {
             $args->{communication_log} = sub {
                 my ($message) = @_;
                 my $fh = $file->open('a')
-                    || die "Could not open for append: $file";
+                    || croak "Could not open for append: $file";
                 $fh->print(
                     $message->as_string . "\n\n" . '-' x 80 . "\n\n" );
             };
@@ -199,14 +195,14 @@ sub new {
     return bless {%$args}, $class;
 }
 
-sub log {
+sub _log { ## no critic
     my $self = shift;
-    $self->verbose->(@_);
+    return $self->verbose->(@_);
 }
 
-sub clog {
+sub _clog { ## no critic
     my $self = shift;
-    $self->communication_log->(@_);
+    return $self->communication_log->(@_);
 }
 
 =head2 ping
@@ -223,7 +219,7 @@ sub ping {
     my $self = shift;
     eval { $self->client->list() };
 
-    $self->log( debug => $@ ? "ping failed: $@" : "ping succeeded" );
+    $self->_log( debug => $@ ? "ping failed: $@" : "ping succeeded" );
 
     return if $@;
     return 1;
@@ -363,22 +359,6 @@ sub delete_everything_from_this_test_account {
 
     return $delete_count;
 }
-
-# =head2 log
-#
-#   my $logger = $fb->log;
-#
-# docs...
-#
-# =cut
-#
-# my $LOGGER = undef;
-#
-# sub log {
-#     my $self = shift;
-#     local $Log::Log4perl::caller_depth = $Log::Log4perl::caller_depth + 1;
-#     return $LOGGER ||= Log::Log4perl->get_logger;
-# }
 
 =head1 AUTHOR
 

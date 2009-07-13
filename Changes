@@ -6,3 +6,5 @@ Revision history for Perl module Net::FreshBooks::API
       failing the ping method
     - Added tests for recurring items
     - Added a sample script: examples/create_recurring_item.pl
+    - Added some POD tests
+    - All modules now pass Perl::Critic severity 4

@@ -20,9 +20,13 @@ WriteMakefile(
         'XML::LibXML'           => 0,
 
         # Testing
+        'English'              => 0,
         'File::Slurp'          => 0,
+        'File::Spec'           => 0,
         'Sub::Override'        => 0,
         'Test::More'           => 0,
+        'Test::Pod'            => 0,
+        'Test::Pod::Coverage'  => 0,
         'Test::WWW::Mechanize' => 0,
         'Test::XML'            => 0,
     },
