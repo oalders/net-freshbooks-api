@@ -4,7 +4,7 @@ use base 'Class::Accessor::Fast';
 use strict;
 use warnings;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 use Carp qw( carp croak );
 use URI;
@@ -31,7 +31,7 @@ Net::FreshBooks::API - easy OO access to the FreshBooks.com API
 
 =head1 VERSION
 
-Version 0.02
+Version 0.03
 
 =head1 SYNOPSIS
 
@@ -78,7 +78,7 @@ Version 0.02
     # save the invoice and then send it
     $invoice->create;
     $invoice->send_by_email;
-    
+
     ############################################
     # create a recurring item
     ############################################
@@ -86,17 +86,17 @@ Version 0.02
     use Net::FreshBooks::API;
     use Net::FreshBooks::API::InvoiceLine;
     use DateTime;
-    
+
     # auth_token and account_name come from FreshBooks
     my $fb = Net::FreshBooks::API->new(
         {   auth_token   => $auth_token,
             account_name => $account_name,
         }
     );
-    
+
     # find the first client returned
     my $client = $fb->client->list->next;
-    
+
     # create a line item
     my $line = Net::FreshBooks::API::InvoiceLine->new({
         name         => "Widget",
@@ -106,7 +106,7 @@ Version 0.02
         tax1_name    => "GST",
         tax1_percent => 5,
     });
-    
+
     # create the recurring item
     my $recurring_item = $fb->recurring->create({
         client_id   => $client->client_id,
@@ -115,10 +115,10 @@ Version 0.02
         lines       => [ $line ],
         notes       => 'Created by Net::FreshBooks::API',
     });
-    
+
     $recurring_item->po_number( 999 );
     $recurring_item->update;
-    
+
     See also L<Net::FreshBooks::API::Base> for other available methods, such
     as create, update, get, list and delete.
 
