@@ -4,7 +4,7 @@ use base 'Class::Accessor::Fast';
 use strict;
 use warnings;
 
-use Data::Dumper;
+use Data::Dump qw( dump );
 use Carp;
 use Clone qw(clone);
 
@@ -109,7 +109,9 @@ sub update {
 
     my %args = ();
     $args{$_} = $self->$_ for ( $self->field_names_rw, $self->id_field );
-
+    
+    $self->_fb->log( debug => dump( \%args ) );
+    
     my $res = $self->send_request(
         {   _method         => $method,
             $self->api_name => \%args,
@@ -250,11 +252,23 @@ sub send_request {
 
     my $fb     = $self->_fb;
     my $method = $args->{_method};
+    
+    my %frequency_fix = %{ $self->_frequency_cleanup };
+    
+    my $pattern = join "|", keys %frequency_fix;
 
     $fb->log( debug => "Sending request for $method" );
 
     my $request_xml   = $self->parameters_to_request_xml($args);
+    
+    $request_xml =~ s{<frequency>($pattern)</frequency>}{<frequency>$frequency_fix{$1}</frequency>}gxms;
+    
+    $fb->log( debug => $request_xml );
+    
     my $return_xml    = $self->send_xml_to_freshbooks($request_xml);
+    
+    $fb->log( debug => $return_xml );
+    
     my $response_node = $self->response_xml_to_node($return_xml);
 
     $fb->log( debug => "Received response for $method" );
@@ -448,95 +462,6 @@ sub response_xml_to_node {
     return $response;
 }
 
-# {   XML_ELEMENT_NODE       => 1,
-#     XML_ATTRIBUTE_NODE     => 2,
-#     XML_TEXT_NODE          => 3,
-#     XML_CDATA_SECTION_NODE => 4,
-#     XML_ENTITY_REF_NODE    => 5,
-#     XML_ENTITY_NODE        => 6,
-#     XML_PI_NODE            => 7,
-#     XML_COMMENT_NODE       => 8,
-#     XML_DOCUMENT_NODE      => 9,
-#     XML_DOCUMENT_TYPE_NODE => 10,
-#     XML_DOCUMENT_FRAG_NODE => 11,
-#     XML_NOTATION_NODE      => 12,
-#     XML_HTML_DOCUMENT_NODE => 13,
-#     XML_DTD_NODE           => 14,
-#     XML_ELEMENT_DECL       => 15,
-#     XML_ATTRIBUTE_DECL     => 16,
-#     XML_ENTITY_DECL        => 17,
-#     XML_NAMESPACE_DECL     => 18,
-#     XML_XINCLUDE_START     => 19,
-#     XML_XINCLUDE_END       => 20,
-# };
-
-# sub deconstruct_element {
-#     my $self    = shift;
-#     my $element = shift;
-#
-#     # warn ">>>>>>>>>>>>>>>>>>>>";
-#     #
-#     # warn Dumper(
-#     #     {   element       => $element->toString(1),
-#     #         nodeName      => $element->nodeName,
-#     #         nodeType      => $element->nodeType,
-#     #         textContent   => $element->textContent,
-#     #         hasChildNodes => $element->hasChildNodes,
-#     #     }
-#     # );
-#
-#     my @children = $element->childNodes;
-#
-#     if ( scalar @children == 1 && $children[0]->nodeType == XML_TEXT_NODE ) {
-#         my $val = $children[0]->textContent || '';
-#         $val =~ s{ \A \s* ( .*? ) \s* \z }{$1}xms;
-#
-#         # warn "value: '$val'";
-#         # warn '-' x 30;
-#
-#         return $val;
-#     }
-#
-#     my $hashref = {};
-#
-#
-#     # not a simple text element - is this a wrapper?
-#     if ( $plural_to_singular{ $element->nodeName } ) {
-#
-#
-#         my @array = ();
-#         foreach my $child (@children) {
-#             next unless $child->nodeType == XML_ELEMENT_NODE;
-#             push @array, $self->deconstruct_element($child);
-#         }
-#         $hashref->{ $element->nodeName } = \@array;
-#     }
-#
-#     # not a wrapper - probably a content
-#     else {
-#
-#         foreach my $child (@children) {
-#             next unless $child->nodeType == XML_ELEMENT_NODE;
-#             $hashref->{ $child->nodeName }
-#                 = $self->deconstruct_element($child);
-#         }
-#
-#     }
-#
-#     # get all the attributes and store them
-#     foreach my $attr ( $element->attributes ) {
-#         next unless $attr;
-#         my $key = "_" . $attr->nodeName;
-#         my $val = $attr->value;
-#         $hashref->{$key} = $val;
-#     }
-#
-#     # warn Dumper($hashref);
-#     # warn "-" x 30;
-#
-#     return scalar keys %$hashref ? $hashref : undef;
-# }
-
 =head2 send_xml_to_freshbooks
 
   my $returned_xml = $self->send_xml_to_freshbooks( $xml_to_send );
@@ -552,8 +477,6 @@ sub send_xml_to_freshbooks {
     my $xml_to_send = shift;
     my $fb          = $self->_fb;
     my $ua          = $fb->ua;
-
-    # my $log         = $fb->log;
 
     my $request = HTTP::Request->new(
         'POST',              # method
@@ -572,6 +495,27 @@ sub send_xml_to_freshbooks {
         unless $response->is_success;
 
     return $response->content;
+}
+
+# When FreshBooks returns info on recurring items, it does not return the same
+# frequency values as the values it requests.  This method provides a lookup
+# table to fix this issue.
+
+sub _frequency_cleanup {
+    
+    my $self = shift;
+    
+    return  {
+        y       => 'yearly',
+        w       => 'weekly',
+        '2w'    => '2 weeks',
+        '4w'    => '4 weeks',
+        m       => 'monthly',
+        '2m'    => '2 months',
+        '3m'    => '3 months',
+        '6m'    => '6 months',
+    };
+    
 }
 
 1;

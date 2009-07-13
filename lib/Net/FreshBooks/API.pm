@@ -82,6 +82,49 @@ Version 0.02
     # save the invoice and then send it
     $invoice->create;
     $invoice->send_by_email;
+    
+    ############################################
+    # create a recurring item
+    ############################################
+
+    use Net::FreshBooks::API;
+    use Net::FreshBooks::API::InvoiceLine;
+    use DateTime;
+    
+    # auth_token and account_name come from FreshBooks
+    my $fb = Net::FreshBooks::API->new(
+        {   auth_token   => $auth_token,
+            account_name => $account_name,
+        }
+    );
+    
+    # find the first client returned
+    my $client = $fb->client->list->next;
+    
+    # create a line item
+    my $line = Net::FreshBooks::API::InvoiceLine->new({
+        name         => "Widget",
+        description  => "Net::FreshBooks::API Widget",
+        unit_cost    => '1.99',
+        quantity     => 1,
+        tax1_name    => "GST",
+        tax1_percent => 5,
+    });
+    
+    # create the recurring item
+    my $recurring_item = $fb->recurring->create({
+        client_id   => $client->client_id,
+        date        => DateTime->now->add( days => 2 )->ymd, # YYYY-MM-DD
+        frequency   => 'monthly',
+        lines       => [ $line ],
+        notes       => 'Created by Net::FreshBooks::API',
+    });
+    
+    $recurring_item->po_number( 999 );
+    $recurring_item->update;
+    
+    See also L<Net::FreshBooks::API::Base> for other available methods, such
+    as create, update, get, list and delete.
 
 =head1 WARNING
 
@@ -98,6 +141,8 @@ If you need other details they should be very easy to add - please get in touch.
 L<FreshBooks.com> is a website that lets you create, send and manage invoices.
 This module is an OO abstraction of their API that lets you work with Clients,
 Invoices etc as if they were standard Perl objects.
+
+Repository: L<http://github.com/oalders/net-freshbooks-api/tree/master>
 
 =head1 METHODS
 
@@ -340,6 +385,12 @@ sub delete_everything_from_this_test_account {
 Edmund von der Burg C<<evdb@ecclestoad.co.uk>>
 
 Developed for HinuHinu L<http://www.hinuhinu.com/>.
+
+Recurring item support by:
+
+Olaf Alders olaf@raybec.com
+
+Developed for Raybec Communications L<http://www.raybec.com>
 
 =head1 LICENCE
 

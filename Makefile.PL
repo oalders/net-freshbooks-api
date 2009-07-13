@@ -13,6 +13,7 @@ WriteMakefile(
         'Clone'                 => 0,
         'Data::Dump'            => 0,
         'Data::Dumper'          => 0,
+        'DateTime'              => 0,
         'Lingua::EN::Inflect'   => 0,
         'LWP::UserAgent'        => 0,
         'URI'                   => 0,

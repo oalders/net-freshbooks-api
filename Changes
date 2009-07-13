@@ -4,5 +4,5 @@ Revision history for Perl module Net::FreshBooks::API
     - Added Net::FreshBooks::API::Recurring
     - Created a new FreshBooks test account because the original account was
       failing the ping method
-    - Added very minimal testing for recurring items.  This needs to be
-      expanded in future
+    - Added tests for recurring items
+    - Added a sample script: examples/create_recurring_item.pl
