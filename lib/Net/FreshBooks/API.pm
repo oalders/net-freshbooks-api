@@ -4,7 +4,7 @@ use base 'Class::Accessor::Fast';
 use strict;
 use warnings;
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 use Carp qw( carp croak );
 use URI;
@@ -27,11 +27,11 @@ use Net::FreshBooks::API::Recurring;
 
 =head1 NAME
 
-Net::FreshBooks::API - easy OO access to the FreshBooks.com API
+Net::FreshBooks::API - Easy OO access to the FreshBooks.com API
 
 =head1 VERSION
 
-Version 0.03
+Version 0.04
 
 =head1 SYNOPSIS
 
@@ -119,8 +119,8 @@ Version 0.03
     $recurring_item->po_number( 999 );
     $recurring_item->update;
 
-    See also L<Net::FreshBooks::API::Base> for other available methods, such
-    as create, update, get, list and delete.
+See also L<Net::FreshBooks::API::Base> for other available methods, such
+as create, update, get, list and delete.
 
 =head1 WARNING
 
@@ -129,8 +129,10 @@ This code is still under development - any and all patches most welcome.
 Especially lacking is the documentation - for now you'd better look at the test
 file 't/live-test.t' for examples of usage.
 
-Also I've only implemented the clients and invoices as they were all I needed.
-If you need other details they should be very easy to add - please get in touch.
+Up to this point, only clients, invoices and recurring items have been
+implemented, but other functionality may be added as needed.
+If you need other details, they should be very easy to add. Please get in
+touch.
 
 =head1 DESCRIPTION
 

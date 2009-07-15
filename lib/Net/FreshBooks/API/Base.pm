@@ -166,6 +166,11 @@ sub _fill_in_from_node {
         if ( my $made_of = $fields_config->{$key}{made_of} ) {
 
             my ($match) = $node->findnodes($xpath);
+            
+            # avoid this error: Can't call method "childNodes" on an undefined
+            # value at /tmp/net-freshbooks-api/lib/Net/FreshBooks/API/Base.pm
+            # line 174
+            next if !$match;
 
             if ( $fields_config->{$key}{presented_as} eq 'array' ) {
 
