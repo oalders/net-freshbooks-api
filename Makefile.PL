@@ -11,11 +11,13 @@ WriteMakefile(
         'Carp'                  => 0,
         'Class::Accessor::Fast' => 0,
         'Clone'                 => 0,
+        'Crypt::SSLeay'         => 0,
         'Data::Dump'            => 0,
         'Data::Dumper'          => 0,
         'DateTime'              => 0,
         'Lingua::EN::Inflect'   => 0,
         'LWP::UserAgent'        => 0,
+        'Path::Class'           => 0,
         'URI'                   => 0,
         'XML::LibXML'           => 0,
 
@@ -31,4 +33,3 @@ WriteMakefile(
         'Test::XML'            => 0,
     },
 );
-

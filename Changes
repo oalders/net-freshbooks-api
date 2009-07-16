@@ -1,5 +1,11 @@
 Revision history for Perl module Net::FreshBooks::API
 
+0.05 2009-07-16
+    - Added Crypt::SSLeay to dependencies to fix the following error:
+      "501 Protocol scheme 'https' is not supported (Crypt::SSLeay or
+      IO::Socket::SSL not installed)"
+    - Added Path::Class to dependencies
+
 0.04 2009-07-15
     - Fixed failing test t/007_live_test.t "Can't call method "childNodes" on an
       undefined value at /tmp/net-freshbooks-api/lib/Net/FreshBooks/API/Base.pm
