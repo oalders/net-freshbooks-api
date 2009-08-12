@@ -4,11 +4,11 @@ use base 'Class::Accessor::Fast';
 use strict;
 use warnings;
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 use Carp qw( carp croak );
 use URI;
-use Data::Dumper;
+use Data::Dump qw( dump );
 use Path::Class;
 
 __PACKAGE__->mk_accessors(
@@ -31,7 +31,7 @@ Net::FreshBooks::API - Easy OO access to the FreshBooks.com API
 
 =head1 VERSION
 
-Version 0.05
+Version 0.06
 
 =head1 SYNOPSIS
 
@@ -41,6 +41,7 @@ Version 0.05
     my $fb = Net::FreshBooks::API->new(
         {   auth_token   => $auth_token,
             account_name => $account_name,
+            verbose      => 0, # turn on for XML debugging etc
         }
     );
 
@@ -222,7 +223,6 @@ sub ping {
     eval { $self->client->list() };
 
     $self->_log( debug => $@ ? "ping failed: $@" : "ping succeeded" );
-
     return if $@;
     return 1;
 }

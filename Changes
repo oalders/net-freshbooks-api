@@ -1,5 +1,13 @@
 Revision history for Perl module Net::FreshBooks::API
 
+0.06 2009-08-12
+    - Added XML::Simple and Test::Exception to dependencies
+    - Improved handling of error messages.  In many cases the returned message
+      had been blank
+    - Added test to confirm error messages are being correctly parsed
+    - "verbose" setting is now referred to in the documentation (if only
+      briefly)
+
 0.05 2009-07-16
     - Added Crypt::SSLeay to dependencies to fix the following error:
       "501 Protocol scheme 'https' is not supported (Crypt::SSLeay or

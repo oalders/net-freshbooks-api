@@ -38,5 +38,3 @@ is_deeply(
     "check that the correct credentials will be used (with no realm)"
 );
 
-# # logging
-# ok ! $fb->log->debug('test of debug level logging'), "logged debug message";

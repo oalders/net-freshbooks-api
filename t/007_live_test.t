@@ -2,6 +2,7 @@
 
 use strict;
 use Test::More;
+use Test::Exception;
 
 # BEGIN {
 #     use Log::Log4perl;
@@ -12,7 +13,7 @@ use Net::FreshBooks::API;
 use Test::WWW::Mechanize;
 
 plan -r 't/config.pl' && require('t/config.pl')
-    ? ( tests => 17 )
+    ? ( tests => 18 )
     : ( skip_all => "Need test connection details in t/config.pl"
         . " - see t/config_sample.pl for details" );
 
@@ -96,4 +97,6 @@ is $invoice->status, 'sent', "invoice status is 'sent'";
 $mech->get_ok( $invoice->links->client_view );
 $mech->content_contains( 'this is the test line',
     "Invoice is now available to client" );
+
+throws_ok { $fb->payment->create({ invoice_id => $invoice->invoice_id, client_id => $client->client_id, amount => '1.00' })  } qr/Payment from credit cannot exceed available credit/, 'error msg parsed';
 

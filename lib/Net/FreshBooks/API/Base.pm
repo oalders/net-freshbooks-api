@@ -11,6 +11,7 @@ use Clone qw(clone);
 use Net::FreshBooks::API::Iterator;
 
 use XML::LibXML ':libxml';
+use XML::Simple;
 use LWP::UserAgent;
 
 my %plural_to_singular = (
@@ -274,6 +275,7 @@ sub send_request {
     my $return_xml    = $self->send_xml_to_freshbooks($request_xml);
     
     $fb->_log( debug => $return_xml );
+    $self->{'__return_xml'} = $return_xml;
     
     my $response_node = $self->response_xml_to_node($return_xml);
 
@@ -473,9 +475,8 @@ sub response_xml_to_node {
     my $response_status = $response->getAttribute('status');
 
     if ( $response_status ne 'ok' ) {
-        my @error_nodes = $response->findnodes('/error');
-        my $error = join ', ', map { $_->textContent } @error_nodes;
-        croak "FreshBooks server returned error: '$error'";
+        my $msg = XMLin( $xml );
+        croak "FreshBooks server returned error: '$msg->{'error'}'";
     }
 
     return $response;
