@@ -3,10 +3,10 @@
 use strict;
 use Test::More;
 
- #BEGIN {
- #    use Log::Log4perl;
- #    Log::Log4perl::init('t/log4perl.conf');
- #}
+#BEGIN {
+#    use Log::Log4perl;
+#    Log::Log4perl::init('t/log4perl.conf');
+#}
 
 use Net::FreshBooks::API;
 

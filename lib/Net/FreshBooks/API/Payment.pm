@@ -8,7 +8,6 @@ use Net::FreshBooks::API::Links;
 
 __PACKAGE__->mk_accessors( __PACKAGE__->field_names );
 
-
 sub fields {
     return {
         payment_id => { mutable => 0, },

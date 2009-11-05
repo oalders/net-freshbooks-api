@@ -1,5 +1,9 @@
 Revision history for Perl module Net::FreshBooks::API
 
+0.07 2009-11-05
+    - Added return_uri field to Invoice
+    - perltidied source
+
 0.06 2009-08-12
     - Added XML::Simple and Test::Exception to dependencies
     - Improved handling of error messages.  In many cases the returned message

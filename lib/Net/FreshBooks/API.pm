@@ -4,7 +4,7 @@ use base 'Class::Accessor::Fast';
 use strict;
 use warnings;
 
-our $VERSION = '0.06';
+our $VERSION = '0.07';
 
 use Carp qw( carp croak );
 use URI;
@@ -31,7 +31,7 @@ Net::FreshBooks::API - Easy OO access to the FreshBooks.com API
 
 =head1 VERSION
 
-Version 0.06
+Version 0.07
 
 =head1 SYNOPSIS
 
@@ -176,7 +176,8 @@ sub new {
                 carp "$level: $message";
             };
         }
-    } else {
+    }
+    else {
         $args->{verbose} = sub { 1; };
     }
 
@@ -191,19 +192,20 @@ sub new {
                     $message->as_string . "\n\n" . '-' x 80 . "\n\n" );
             };
         }
-    } else {
+    }
+    else {
         $args->{communication_log} = sub { 1; };
     }
 
     return bless {%$args}, $class;
 }
 
-sub _log { ## no critic
+sub _log {    ## no critic
     my $self = shift;
     return $self->verbose->(@_);
 }
 
-sub _clog { ## no critic
+sub _clog {    ## no critic
     my $self = shift;
     return $self->communication_log->(@_);
 }

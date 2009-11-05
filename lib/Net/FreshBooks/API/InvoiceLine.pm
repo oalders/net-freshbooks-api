@@ -20,6 +20,6 @@ sub fields {
     };
 }
 
-sub node_name { return 'line' };
+sub node_name { return 'line' }
 
 1;

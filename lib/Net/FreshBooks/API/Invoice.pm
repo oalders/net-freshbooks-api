@@ -23,6 +23,7 @@ sub fields {
         discount           => { mutable => 1, },
         notes              => { mutable => 1, },
         terms              => { mutable => 1, },
+        return_uri         => { mutable => 1, },
 
         links => {
             mutable      => 0,
@@ -110,9 +111,9 @@ sub _send_using {
             $id_field => $self->$id_field,
         }
     );
-    
+
     # refetch the invoice so that the flags are updated.
-    $self->get({ invoice_id => $self->invoice_id });
+    $self->get( { invoice_id => $self->invoice_id } );
 
     return 1;
 }

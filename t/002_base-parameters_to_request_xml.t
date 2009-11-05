@@ -63,5 +63,5 @@ use_ok $class;
 foreach my $test (@tests) {
     my $xml = $class->parameters_to_request_xml( $test->{in} );
     is_xml( $xml, $test->{out}, $test->{name} )
-    ||die;
+        || die;
 }

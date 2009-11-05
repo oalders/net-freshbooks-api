@@ -110,9 +110,9 @@ sub update {
 
     my %args = ();
     $args{$_} = $self->$_ for ( $self->field_names_rw, $self->id_field );
-    
+
     $self->_fb->_log( debug => dump( \%args ) );
-    
+
     my $res = $self->send_request(
         {   _method         => $method,
             $self->api_name => \%args,
@@ -167,7 +167,7 @@ sub _fill_in_from_node {
         if ( my $made_of = $fields_config->{$key}{made_of} ) {
 
             my ($match) = $node->findnodes($xpath);
-            
+
             # avoid this error: Can't call method "childNodes" on an undefined
             # value at /tmp/net-freshbooks-api/lib/Net/FreshBooks/API/Base.pm
             # line 174
@@ -181,14 +181,16 @@ sub _fill_in_from_node {
                     $match->childNodes();
 
                 $self->{$key} = \@new_objects;
-            } else {
+            }
+            else {
                 $self->{$key}                              #
                     = $match                               #
                     ? $made_of->new_from_node($match)      #
                     : undef;
             }
 
-        } else {
+        }
+        else {
             my $val = $node->findvalue($xpath);
             $self->{$key} = $val;
         }
@@ -226,7 +228,7 @@ Delete the given object.
 
 =cut
 
-sub delete { ## no critic
+sub delete {    ## no critic
     ## use critic
     my $self = shift;
 
@@ -259,24 +261,25 @@ sub send_request {
 
     my $fb     = $self->_fb;
     my $method = $args->{_method};
-    
+
     my %frequency_fix = %{ $self->_frequency_cleanup };
-    
+
     my $pattern = join "|", keys %frequency_fix;
 
     $fb->_log( debug => "Sending request for $method" );
 
-    my $request_xml   = $self->parameters_to_request_xml($args);
-    
-    $request_xml =~ s{<frequency>($pattern)</frequency>}{<frequency>$frequency_fix{$1}</frequency>}gxms;
-    
+    my $request_xml = $self->parameters_to_request_xml($args);
+
+    $request_xml
+        =~ s{<frequency>($pattern)</frequency>}{<frequency>$frequency_fix{$1}</frequency>}gxms;
+
     $fb->_log( debug => $request_xml );
-    
-    my $return_xml    = $self->send_xml_to_freshbooks($request_xml);
-    
+
+    my $return_xml = $self->send_xml_to_freshbooks($request_xml);
+
     $fb->_log( debug => $return_xml );
     $self->{'__return_xml'} = $return_xml;
-    
+
     my $response_node = $self->response_xml_to_node($return_xml);
 
     $fb->_log( debug => "Received response for $method" );
@@ -350,7 +353,7 @@ Return the names of all the fields.
 =cut
 
 sub field_names {
-    my $self = shift;
+    my $self  = shift;
     my @names = sort keys %{ $self->fields };
     return @names;
 }
@@ -366,11 +369,11 @@ Return the names of all the fields that are marked as read and write.
 sub field_names_rw {
     my $self   = shift;
     my $fields = $self->fields;
-    
+
     my @names = sort
         grep { $fields->{$_}{mutable} }
         keys %$fields;
-        
+
     return @names;
 }
 
@@ -440,7 +443,8 @@ sub construct_element {
                 $wrapper->addChild($entry_node);
                 $self->construct_element( $entry_node, $entry_val );
             }
-        } elsif ( ref $val eq 'HASH' ) {
+        }
+        elsif ( ref $val eq 'HASH' ) {
             my $wrapper = XML::LibXML::Element->new($key);
             $element->addChild($wrapper);
 
@@ -449,7 +453,7 @@ sub construct_element {
         }
 
     }
-    
+
     return;
 }
 
@@ -475,7 +479,7 @@ sub response_xml_to_node {
     my $response_status = $response->getAttribute('status');
 
     if ( $response_status ne 'ok' ) {
-        my $msg = XMLin( $xml );
+        my $msg = XMLin($xml);
         croak "FreshBooks server returned error: '$msg->{'error'}'";
     }
 
@@ -522,20 +526,20 @@ sub send_xml_to_freshbooks {
 # table to fix this issue.
 
 sub _frequency_cleanup {
-    
+
     my $self = shift;
-    
-    return  {
-        y       => 'yearly',
-        w       => 'weekly',
-        '2w'    => '2 weeks',
-        '4w'    => '4 weeks',
-        m       => 'monthly',
-        '2m'    => '2 months',
-        '3m'    => '3 months',
-        '6m'    => '6 months',
+
+    return {
+        y    => 'yearly',
+        w    => 'weekly',
+        '2w' => '2 weeks',
+        '4w' => '4 weeks',
+        m    => 'monthly',
+        '2m' => '2 months',
+        '3m' => '3 months',
+        '6m' => '6 months',
     };
-    
+
 }
 
 1;

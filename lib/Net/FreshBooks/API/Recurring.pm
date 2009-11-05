@@ -10,15 +10,15 @@ use Net::FreshBooks::API::InvoiceLine;
 __PACKAGE__->mk_accessors( __PACKAGE__->field_names );
 
 sub fields {
-    
-    return {
-        client_id          => { mutable => 1, },
 
-        date               => { mutable => 1, },
-        po_number          => { mutable => 1, },
-        discount           => { mutable => 1, },
-        notes              => { mutable => 1, },
-        terms              => { mutable => 1, },
+    return {
+        client_id => { mutable => 1, },
+
+        date      => { mutable => 1, },
+        po_number => { mutable => 1, },
+        discount  => { mutable => 1, },
+        notes     => { mutable => 1, },
+        terms     => { mutable => 1, },
 
         recurring_id => { mutable => 0, },
 
@@ -37,16 +37,16 @@ sub fields {
             made_of      => 'Net::FreshBooks::API::InvoiceLine',
             presented_as => 'array',
         },
-        
+
         # the above lines are shared between invoices and recurring items
         # the lines below are unique to recurring
 
-        occurrences        => { mutable => 1, },
-        frequency          => { mutable => 1, },
-        stopped            => { mutable => 1, },
-        send_email         => { mutable => 1, },
-        send_snail_mail    => { mutable => 1, },
-    
+        occurrences     => { mutable => 1, },
+        frequency       => { mutable => 1, },
+        stopped         => { mutable => 1, },
+        send_email      => { mutable => 1, },
+        send_snail_mail => { mutable => 1, },
+
     };
 }
 
@@ -128,6 +128,5 @@ This program is free software; you can redistribute
 it and/or modify it under the same terms as Perl itself.
 
 =cut
-
 
 1;

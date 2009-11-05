@@ -32,7 +32,6 @@ my $fb = Net::FreshBooks::API->new(
 );
 ok $fb, "created the FB object";
 
-
 # create the list object.
 my $list = $fb->client->list(
     {   email    => 'janedoe@freshbooks.com',

@@ -73,7 +73,7 @@ Returns the next item in the iterator.
 
 =cut
 
-sub next { ## no critic
+sub next {    ## no critic
     ## use critic
     my $self = shift;
 

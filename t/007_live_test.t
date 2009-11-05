@@ -1,19 +1,17 @@
 #!/usr/bin/env perl
 
 use strict;
+use warnings;
+
+use Data::Dump qw( dump );
 use Test::More;
 use Test::Exception;
-
-# BEGIN {
-#     use Log::Log4perl;
-#     Log::Log4perl::init('t/log4perl.conf');
-# }
 
 use Net::FreshBooks::API;
 use Test::WWW::Mechanize;
 
 plan -r 't/config.pl' && require('t/config.pl')
-    ? ( tests => 18 )
+    ? ( tests => 20 )
     : ( skip_all => "Need test connection details in t/config.pl"
         . " - see t/config_sample.pl for details" );
 
@@ -60,8 +58,11 @@ ok $client->update, "update the client";
 }
 
 # create an invoice for this client
+my $return_uri = 'http://www.google.com';
+
 my $invoice = $fb->invoice(
-    {   client_id => $client->client_id,
+    {   client_id  => $client->client_id,
+        return_uri => $return_uri,
 
         # number    => time,
     }
@@ -84,9 +85,10 @@ ok $invoice->create, "Create the invoice on FB";
 
 # check that the invoice has not been sent
 is $invoice->status, 'draft', "invoice status is 'draft'";
+
 my $mech = Test::WWW::Mechanize->new;
 $mech->get_ok( $invoice->links->client_view );
-$mech->content_lacks( 'this is the test line',
+$mech->content_lacks( ' this is the test line ',
     "Invoice not available to client" );
 
 # send the invoice so that it is available
@@ -98,5 +100,24 @@ $mech->get_ok( $invoice->links->client_view );
 $mech->content_contains( 'this is the test line',
     "Invoice is now available to client" );
 
-throws_ok { $fb->payment->create({ invoice_id => $invoice->invoice_id, client_id => $client->client_id, amount => '1.00' })  } qr/Payment from credit cannot exceed available credit/, 'error msg parsed';
+#diag("view invoice: " . $invoice->links->client_view);
+
+throws_ok {
+    $fb->payment->create(
+        {   invoice_id => $invoice->invoice_id,
+            client_id  => $client->client_id,
+            amount     => ' 1.00 '
+        }
+    );
+}
+qr/Payment from credit cannot exceed available credit/, 'error msg parsed';
+
+# can we get the invoice from the API?
+
+my $retrieved = $fb->invoice->get( { invoice_id => $invoice->invoice_id } );
+ok( $retrieved, "got an invoice back from freshbooks" );
+cmp_ok( $retrieved->return_uri, 'eq', $return_uri,
+    "return uri correctly set" );
+
+#diag( dump $retrieve );
 
