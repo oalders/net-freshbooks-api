@@ -7,8 +7,8 @@ use Data::Dump qw( dump );
 use DateTime;
 use Test::More;
 
-plan -r 't/config.pl' && require('t/config.pl')
-    ? ( tests => 64 )
+plan -r 't/config.pl' && require( 't/config.pl' )
+    ? ( tests => 72 )
     : ( skip_all => "Need test connection details in t/config.pl"
         . " - see t/config_sample.pl for details" );
 
@@ -16,8 +16,8 @@ use_ok 'Net::FreshBooks::API';
 
 # create the FB object
 my $fb = Net::FreshBooks::API->new(
-    {   auth_token   => FBTest->get('auth_token'),
-        account_name => FBTest->get('account_name'),
+    {   auth_token   => FBTest->get( 'auth_token' ),
+        account_name => FBTest->get( 'account_name' ),
 
         #verbose     => 1,
     }
@@ -49,20 +49,22 @@ my $line = Net::FreshBooks::API::InvoiceLine->new(
 ok( $line, "created a line item" );
 isa_ok( $line, "Net::FreshBooks::API::InvoiceLine" );
 
-require_ok('Net::FreshBooks::API::Base');
+require_ok( 'Net::FreshBooks::API::Base' );
 my $base              = Net::FreshBooks::API::Base->new;
 my $frequency_cleanup = $base->_frequency_cleanup;
+my $return_uri        = 'http://www.google.ca';
 
 # test each individual frequency to make sure the frequency setting has been
 # properly cleaned up before return to FreshBooks
 foreach my $frequency ( values %{$frequency_cleanup} ) {
 
     my $created = $recurring->create(
-        {   client_id => $client->client_id,
-            date      => DateTime->now->add( days => 2 )->ymd,
-            frequency => $frequency,
-            lines     => [$line],
-            notes     => 'Created by Net::FreshBooks::API',
+        {   client_id  => $client->client_id,
+            date       => DateTime->now->add( days => 2 )->ymd,
+            frequency  => $frequency,
+            lines      => [$line],
+            notes      => 'Created by Net::FreshBooks::API',
+            return_uri => $return_uri,
         }
     );
 
@@ -71,11 +73,13 @@ foreach my $frequency ( values %{$frequency_cleanup} ) {
 
     ok( $created->recurring_id,
         "got recurring id: " . $created->recurring_id );
-    $created->po_number(9999);
+    $created->po_number( 9999 );
     ok( $created->update(), "could update recurring item" );
 
     my $get = $recurring->get( { recurring_id => $created->recurring_id } );
     ok( $get, "can get the recurring item" );
+
+    cmp_ok( $get->return_uri, 'eq', $return_uri, "return_uri correct" );
 
     cmp_ok( $get->po_number, '==', 9999,
         "po_number has been correctly updated" );

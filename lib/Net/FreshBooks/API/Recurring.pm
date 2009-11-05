@@ -14,11 +14,12 @@ sub fields {
     return {
         client_id => { mutable => 1, },
 
-        date      => { mutable => 1, },
-        po_number => { mutable => 1, },
-        discount  => { mutable => 1, },
-        notes     => { mutable => 1, },
-        terms     => { mutable => 1, },
+        date       => { mutable => 1, },
+        po_number  => { mutable => 1, },
+        discount   => { mutable => 1, },
+        notes      => { mutable => 1, },
+        terms      => { mutable => 1, },
+        return_uri => { mutable => 1, },
 
         recurring_id => { mutable => 0, },
 
