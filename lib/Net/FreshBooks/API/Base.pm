@@ -204,7 +204,7 @@ sub _fill_in_from_node {
 
   my $iterator = $self->list( $args );
 
-Returns an iterator that represents the list fetched from the server. 
+Returns an iterator that represents the list fetched from the server.
 See L<Net::FreshBooks::API::Iterator> for details.
 
 =cut
@@ -250,7 +250,7 @@ sub delete {    ## no critic
 
   my $response_data = $self->send_request( $args );
 
-Turn the args into xml, send it to FreshBooks, recieve back the XML and 
+Turn the args into xml, send it to FreshBooks, recieve back the XML and
 convert it back into a perl data structure.
 
 =cut
@@ -335,7 +335,7 @@ sub node_name {
 
   my $id_field = $self->id_field(  );
 
-Returns theh id field for this class.
+Returns the id field for this class.
 
 =cut
 

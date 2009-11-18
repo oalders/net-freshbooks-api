@@ -1,5 +1,8 @@
 Revision history for Perl module Net::FreshBooks::API
 
+0.08 2009-11-18
+    - Added explicit documentation for most available methods
+    
 0.07 2009-11-05
     - Added return_uri field to Invoice and Recurring
     - perltidied source

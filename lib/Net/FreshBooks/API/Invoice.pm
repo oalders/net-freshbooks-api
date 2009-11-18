@@ -51,25 +51,6 @@ sub fields {
     };
 }
 
-=head2 add_line
-
-    my $bool = $invoice->add_line(
-        {   name         => "Yard Work",          # (Optional)
-            description  => "Mowed the lawn.",    # (Optional)
-            unit_cost    => 10,                   # Default is 0
-            quantity     => 4,                    # Default is 0
-            tax1_name    => "GST",                # (Optional)
-            tax2_name    => "PST",                # (Optional)
-            tax1_percent => 8,                    # (Optional)
-            tax2_percent => 6,                    # (Optional)
-        }
-    );
-
-Create a new L<Net::FreshBooks::API::InvoiceLine> object and add it to the end
-of the list of lines.
-
-=cut
-
 sub add_line {
     my $self      = shift;
     my $line_args = shift;
@@ -79,15 +60,6 @@ sub add_line {
 
     return 1;
 }
-
-=head2 send_by_email, send_by_snail_mail
-
-  my $result = $self->send_by_email();
-  my $result = $self->send_by_snail_mail();
-
-Send the invoice either by email or by snail mail.
-
-=cut
 
 sub send_by_email {
     my $self = shift;

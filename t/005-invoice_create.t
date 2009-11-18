@@ -1,6 +1,7 @@
 #!/usr/bin/env perl
 
 use strict;
+use Data::Dump qw( dump );
 use Test::More tests => 14;
 use File::Slurp;
 use Sub::Override;
@@ -9,7 +10,7 @@ use Test::XML;
 use_ok 'Net::FreshBooks::API';
 
 my @caught_out_xml = ();
-my @fake_return_xml = map { read_file($_) . '' } (
+my @fake_return_xml = map { read_file( $_ ) . '' } (
     't/test_data/invoice.create.res.xml',
     't/test_data/invoice.get.res.xml'
 );
@@ -57,12 +58,12 @@ ok $invoice->create, "create the invoice";
 # Check that the xml sent was correct.
 is_xml(
     $caught_out_xml[0],
-    read_file('t/test_data/invoice.create.req.xml') . '',
+    read_file( 't/test_data/invoice.create.req.xml' ) . '',
     "xml sent was correct for create"
 );
 is_xml(
     $caught_out_xml[1],
-    read_file('t/test_data/invoice.get.req.xml') . '',
+    read_file( 't/test_data/invoice.get.req.xml' ) . '',
     "xml sent was correct for get"
 );
 
@@ -78,4 +79,3 @@ is $invoice->status, 'draft', 'status is correct';
 is $invoice->links->client_view,
     'https://hinuhinutest.freshbooks.com/inv/106252-2-80cad',
     "client_view correct";
-
