@@ -4,15 +4,15 @@ use base 'Class::Accessor::Fast';
 use strict;
 use warnings;
 
-use Data::Dump qw( dump );
-use Carp qw( croak );
+use Carp qw( carp croak );
 use Clone qw(clone);
-
-use Net::FreshBooks::API::Iterator;
-
+use Data::Dump qw( dump );
+#use Devel::SimpleTrace;
 use XML::LibXML ':libxml';
 use XML::Simple;
 use LWP::UserAgent;
+
+use Net::FreshBooks::API::Iterator;
 
 my %plural_to_singular = (
     clients  => 'client',
@@ -283,6 +283,8 @@ sub send_request {
     my $response_node = $self->response_xml_to_node($return_xml);
 
     $fb->_log( debug => "Received response for $method" );
+
+    #carp "sending request\n";
 
     return $response_node;
 }

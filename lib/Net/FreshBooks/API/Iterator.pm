@@ -5,7 +5,7 @@ use strict;
 use warnings;
 
 use Net::FreshBooks::API::Base;
-use Data::Dumper;
+use Data::Dump qw( dump );
 use Lingua::EN::Inflect qw( PL );
 use XML::LibXML ':libxml';
 
@@ -87,12 +87,7 @@ sub next {    ## no critic
     my $next_node = $self->item_nodes->[$current_index];
     return unless $next_node;
 
-    my $id_field = $self->parent_object->id_field;
-    my $next_id  = $next_node->findvalue("//$id_field");
-
-    my $item = $self->parent_object->copy->get( { $id_field => $next_id } );
-
-    return $item;
+    return $self->parent_object->_fill_in_from_node( $next_node );
 }
 
 1;

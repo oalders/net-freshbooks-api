@@ -2,7 +2,13 @@ Revision history for Perl module Net::FreshBooks::API
 
 0.08 2009-11-18
     - Added explicit documentation for most available methods
-    
+    - Calls to list() no longer perform lookups while iteration takes place.
+      This is no longer necessary after updates to the FreshBooks API in
+      August 2009.  This means that one call to list returns all of the data
+      for the requested page, so multiple API calls are no longer necessary.
+      Multiple API calls will still, of course, be necessary if fetching
+      multiple pages.
+
 0.07 2009-11-05
     - Added return_uri field to Invoice and Recurring
     - perltidied source
