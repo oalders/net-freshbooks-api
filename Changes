@@ -1,5 +1,9 @@
 Revision history for Perl module Net::FreshBooks::API
 
+0.09 2009-11-19
+    - Added amount field to recurring items
+    - Added documentation for the lines() method
+
 0.08 2009-11-18
     - Added explicit documentation for most available methods
     - Calls to list() no longer perform lookups while iteration takes place.

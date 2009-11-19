@@ -4,7 +4,7 @@ use base 'Class::Accessor::Fast';
 use strict;
 use warnings;
 
-our $VERSION = '0.08';
+our $VERSION = '0.09';
 
 use Carp qw( carp croak );
 use URI;
@@ -31,7 +31,7 @@ Net::FreshBooks::API - Easy OO access to the FreshBooks.com API
 
 =head1 VERSION
 
-Version 0.08
+Version 0.09
 
 =head1 SYNOPSIS
 
@@ -123,21 +123,9 @@ Version 0.08
 See also L<Net::FreshBooks::API::Base> for other available methods, such
 as create, update, get, list and delete.
 
-=head1 WARNING
-
-This code is still under development - any and all patches most welcome.
-
-Especially lacking is the documentation - for now you'd better look at the test
-file 't/live-test.t' for examples of usage.
-
-Up to this point, only clients, invoices and recurring items have been
-implemented, but other functionality may be added as needed.
-If you need other details, they should be very easy to add. Please get in
-touch.
-
 =head1 DESCRIPTION
 
-L<FreshBooks.com> is a website that lets you create, send and manage invoices.
+L<http://www.freshbooks.com> is a website that lets you create, send and manage invoices.
 This module is an OO abstraction of their API that lets you work with Clients,
 Invoices etc as if they were standard Perl objects.
 
@@ -147,17 +135,18 @@ Repository: L<http://github.com/oalders/net-freshbooks-api/tree/master>
 
 =head2 new
 
+Create a new API object.
+
     my $fb = Net::FreshBooks::API->new(
         {   account_name => 'account_name',
             auth_token   => '123...def',
         }
     );
 
-Create a new API object.
 
 =head2 client
 
-This returns a Net::FreshBooks::API::Client object.  The following methods are
+Returns a Net::FreshBooks::API::Client object.  The following methods are
 available, as documented in the FreshBooks API:
 
 =head3 client->create
@@ -192,7 +181,7 @@ the update() method, which is described below.
 
 =head3 client->get
 
-    # or, fetch a client based on its FreshBooks client_id
+    # fetch a client based on a FreshBooks client_id
     my $client = $fb->client->get({ client_id => $client_id });
 
 =head3 client->delete
@@ -203,12 +192,19 @@ the update() method, which is described below.
 
 =head3 client->list
 
+Currently, all list() functionality defaults to 15 items per page
+
     # or, list all active clients
     my $clients = $fb->client->list();
 
     while ( my $client = $clients->next ) {
         print join( "\t", $client->client_id, $client->first_name, $client->last_name ) . "\n";
     }
+
+To override the default pagination:
+
+    my $clients = $fb->client->list({ page => 2, per_page => 35 });
+
 
 
 =head2 invoice
@@ -270,6 +266,14 @@ Please see client->update for an example of how to use this method.
     while ( my $invoice = $invoices->list ) {
         print $invoice->invoice_id, "\n";
     }
+    
+=head3 invoice->lines
+
+Returns an ARRAYREF of Net::FreshBooks::API::InvoiceLine objects
+
+    foreach my $line ( @{ $invoice->lines } ) {
+        print $line->amount, "\n";
+    }
 
 =head2 payment
 
@@ -328,6 +332,14 @@ Please see client->update for an example of how to use this method.
     while ( my $recurring = $recurrings->list ) {
         print $recurring->recurring_id, "\n";
     }
+    
+=head3 recurring->lines
+
+Returns an ARRAYREF of Net::FreshBooks::API::InvoiceLine objects
+
+    foreach my $line ( @{ $recurring->lines } ) {
+        print $line->amount, "\n";
+    }
 
 
 =head2 ping
@@ -363,6 +375,18 @@ end with 'test'.
 As a general rule it is best to put this at the B<start> of your test scripts
 rather than at the end. This will let you inspect your account at the end of the
 test script to see what is left behind.
+
+=head1 WARNING
+
+This code is still under development - any and all patches most welcome.
+
+The documentation is by no means complete.   Feel free to look at the test
+files for more examples of usage.
+
+Up to this point, only clients, invoices and recurring items have been
+implemented, but other functionality may be added as needed.
+If you need other details, they should be very easy to add. Please get in
+touch.
 
 =head1 AUTHOR
 
