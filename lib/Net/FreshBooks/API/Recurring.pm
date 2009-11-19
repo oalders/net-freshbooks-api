@@ -27,7 +27,7 @@ sub fields {
         p_country       => { mutable => 1, },
         p_code          => { mutable => 1, },
         po_number       => { mutable => 1, },
-        status          => { mutable => 1, },
+        status          => { mutable => 0, },
         amount          => { mutable => 0, },
         date            => { mutable => 1, },
         notes           => { mutable => 1, },
