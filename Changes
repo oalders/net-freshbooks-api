@@ -1,5 +1,9 @@
 Revision history for Perl module Net::FreshBooks::API
 
+0.10 2009-11-23
+    - Iterator's next() method now returns cloned objects
+    - Added documentation for Invoice links() and list() functionality
+    
 0.09 2009-11-19
     - Added amount field to recurring items
     - Added documentation for the lines() method

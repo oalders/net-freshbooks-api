@@ -29,6 +29,25 @@ __PACKAGE__->mk_accessors(
 Create a new iterator object. As part of creating the iterator a request is sent
 to FreshBooks.
 
+=head2 next
+
+    my $next_result = $iterator->next(  );
+
+Returns the next item in the iterator.
+
+=head2 total
+
+Returns the total number of results available, regardless of how many items are
+on the current page.
+
+=head2 pages
+
+Returns the total number of result pages
+
+=head2 current_index
+
+The item we are currently on
+
 =cut
 
 sub new {
@@ -65,14 +84,6 @@ sub new {
     return $self;
 }
 
-=head2 next
-
-    my $next_result = $iterator->next(  );
-
-Returns the next item in the iterator.
-
-=cut
-
 sub next {    ## no critic
     ## use critic
     my $self = shift;
@@ -85,9 +96,12 @@ sub next {    ## no critic
     # check that there is a next item
     # FIXME - add fetching the next page if needed here
     my $next_node = $self->item_nodes->[$current_index];
-    return unless $next_node;
+    return if !$next_node;
 
-    return $self->parent_object->_fill_in_from_node( $next_node );
+    # if we don't clone here, a user who iterates and pushes the returned
+    # objects to a list will end up with a list of copies of the last
+    # object to be returned
+    return $self->parent_object->clone->_fill_in_from_node( $next_node );
 }
 
 1;

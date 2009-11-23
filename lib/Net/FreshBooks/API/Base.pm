@@ -30,6 +30,125 @@ __PACKAGE__->mk_accessors('_fb');
 
 Create a new object from the node given.
 
+=head2 copy
+
+  my $new_object = $self->copy(  );
+
+Returns a new object with the fb object set on it.
+
+=head2 create
+
+  my $new_object = $self->create( \%args );
+
+Create a new object. Takes the arguments and use them to create a new entry at
+the FreshBooks end. Once the object has been created a 'get' request is issued
+to fetch the data back from freshboks and to populate the object.
+
+=head2 update
+
+  my $object = $object->update();
+
+Update the object, saving any changes that have been made since the get.
+
+=head2 get
+
+  my $object = $self->get( \%args );
+
+Fetches the object using the FreshBooks API.
+
+=head2 list
+
+  my $iterator = $self->list( $args );
+
+Returns an iterator that represents the list fetched from the server.
+See L<Net::FreshBooks::API::Iterator> for details.
+
+=head2 delete
+
+  my $result = $self->delete();
+
+Delete the given object.
+
+
+=head1 INTERNAL METHODS
+
+=head2 send_request
+
+  my $response_data = $self->send_request( $args );
+
+Turn the args into xml, send it to FreshBooks, recieve back the XML and
+convert it back into a perl data structure.
+
+
+=head2 method_string
+
+  my $method_string = $self->method_string( 'action' );
+
+Returns a method string for this class - something like 'client.action'.
+
+
+=head2 api_name
+
+  my $api_name = $self->api_name(  );
+
+Returns the name that should be used in the API for this class.
+
+=head2 node_name
+
+  my $node_name = $self->node_name(  );
+
+Returns the name that should be used in the XML nodes for this class. Normally
+this is the same as the C<api_name> but can be overridden if needed.
+
+
+=head2 id_field
+
+  my $id_field = $self->id_field(  );
+
+Returns the id field for this class.
+
+=head2 field_names
+
+  my @names = $self->field_names();
+
+Return the names of all the fields.
+
+=head2 field_names_rw
+
+  my @names = $self->field_names_rw();
+
+Return the names of all the fields that are marked as read and write.
+
+=head2 parameters_to_request_xml
+
+  my $xml = $self->parameters_to_request_xml( \%parameters );
+
+Takes the parameters given and turns them into the xml that should be sent to
+the server. This has some smarts that works around the tedium of processing perl
+datastructures -> XML. In particular any key starting with an underscore becomes
+an attribute. Any key pointing to an array is wrapped so that it appears
+correctly in the XML.
+
+=head2 construct_element( $element, $hashref )
+
+Requires an XML::LibXML::Element object, followed by a HASHREF of attributes,
+text nodes, nested values or child elements or some combination thereof.
+
+=head2 response_xml_to_node
+
+  my $params = $self->response_xml_to_node( $xml );
+
+Take XML from FB and turn it into a datastructure that is easier to work with.
+
+
+=head2 send_xml_to_freshbooks
+
+  my $returned_xml = $self->send_xml_to_freshbooks( $xml_to_send );
+
+Sends the xml to the FreshBooks API and returns the XML content returned. This
+is the lowest part and is encapsulated here so that it can be easily overridden
+for testing.
+
 =cut
 
 sub new_from_node {
@@ -43,29 +162,11 @@ sub new_from_node {
     return $self;
 }
 
-=head2 copy
-
-  my $new_object = $self->copy(  );
-
-Returns a new object with the fb object set on it.
-
-=cut
-
 sub copy {
     my $self  = shift;
     my $class = ref $self;
     return $class->new( { _fb => $self->_fb } );
 }
-
-=head2 create
-
-  my $new_object = $self->create( \%args );
-
-Create a new object. Takes the arguments and use them to create a new entry at
-the FreshBooks end. Once the object has been created a 'get' request is issued
-to fetch the data back from freshboks and to populate the object.
-
-=cut
 
 sub create {
     my $self   = shift;
@@ -96,14 +197,6 @@ sub create {
     return $self->get( { $self->id_field => $new_id } );
 }
 
-=head2 update
-
-  my $object = $object->update();
-
-Update the object, saving any changes that have been made since the get.
-
-=cut
-
 sub update {
     my $self   = shift;
     my $method = $self->method_string('update');
@@ -121,14 +214,6 @@ sub update {
 
     return $self;
 }
-
-=head2 get
-
-  my $object = $self->get( \%args );
-
-Fetches the object using the FreshBooks API.
-
-=cut
 
 sub get {
     my $self   = shift;
@@ -200,14 +285,6 @@ sub _fill_in_from_node {
 
 }
 
-=head2 list
-
-  my $iterator = $self->list( $args );
-
-Returns an iterator that represents the list fetched from the server.
-See L<Net::FreshBooks::API::Iterator> for details.
-
-=cut
 
 sub list {
     my $self = shift;
@@ -220,13 +297,6 @@ sub list {
     );
 }
 
-=head2 delete
-
-  my $result = $self->delete();
-
-Delete the given object.
-
-=cut
 
 sub delete {    ## no critic
     ## use critic
@@ -244,16 +314,6 @@ sub delete {    ## no critic
     return 1;
 }
 
-=head1 INTERNAL METHODS
-
-=head2 send_request
-
-  my $response_data = $self->send_request( $args );
-
-Turn the args into xml, send it to FreshBooks, recieve back the XML and
-convert it back into a perl data structure.
-
-=cut
 
 sub send_request {
     my $self = shift;
@@ -289,13 +349,6 @@ sub send_request {
     return $response_node;
 }
 
-=head2 method_string
-
-  my $method_string = $self->method_string( 'action' );
-
-Returns a method string for this class - something like 'client.action'.
-
-=cut
 
 sub method_string {
     my $self   = shift;
@@ -304,13 +357,6 @@ sub method_string {
     return $self->api_name . '.' . $action;
 }
 
-=head2 api_name
-
-  my $api_name = $self->api_name(  );
-
-Returns the name that should be used in the API for this class.
-
-=cut
 
 sub api_name {
     my $self = shift;
@@ -319,40 +365,19 @@ sub api_name {
     return lc $name;
 }
 
-=head2 node_name
 
-  my $node_name = $self->node_name(  );
-
-Returns the name that should be used in the XML nodes for this class. Normally
-this is the same as the C<api_name> but can be overridden if needed.
-
-=cut
 
 sub node_name {
     my $self = shift;
     return $self->api_name;
 }
 
-=head2 id_field
-
-  my $id_field = $self->id_field(  );
-
-Returns the id field for this class.
-
-=cut
 
 sub id_field {
     my $self = shift;
     return $self->api_name . "_id";
 }
 
-=head2 field_names
-
-  my @names = $self->field_names();
-
-Return the names of all the fields.
-
-=cut
 
 sub field_names {
     my $self  = shift;
@@ -360,13 +385,7 @@ sub field_names {
     return @names;
 }
 
-=head2 field_names_rw
 
-  my @names = $self->field_names_rw();
-
-Return the names of all the fields that are marked as read and write.
-
-=cut
 
 sub field_names_rw {
     my $self   = shift;
@@ -379,17 +398,7 @@ sub field_names_rw {
     return @names;
 }
 
-=head2 parameters_to_request_xml
 
-  my $xml = $self->parameters_to_request_xml( \%parameters );
-
-Takes the parameters given and turns them into the xml that should be sent to
-the server. This has some smarts that works around the tedium of processing perl
-datastructures -> XML. In particular any key starting with an underscore becomes
-an attribute. Any key pointing to an array is wrapped so that it appears
-correctly in the XML.
-
-=cut
 
 sub parameters_to_request_xml {
     my $self       = shift;
@@ -405,12 +414,6 @@ sub parameters_to_request_xml {
     return $dom->toString(1);
 }
 
-=head2 construct_element( $element, $hashref )
-
-Requires an XML::LibXML::Element object, followed by a HASHREF of attributes,
-text nodes, nested values or child elements or some combination thereof.
-
-=cut
 
 sub construct_element {
     my $self    = shift;
@@ -459,13 +462,6 @@ sub construct_element {
     return;
 }
 
-=head2 response_xml_to_node
-
-  my $params = $self->response_xml_to_node( $xml );
-
-Take XML from FB and turn it into a datastructure that is easier to work with.
-
-=cut
 
 sub response_xml_to_node {
     my $self = shift;
@@ -488,15 +484,6 @@ sub response_xml_to_node {
     return $response;
 }
 
-=head2 send_xml_to_freshbooks
-
-  my $returned_xml = $self->send_xml_to_freshbooks( $xml_to_send );
-
-Sends the xml to the FreshBooks API and returns the XML content returned. This
-is the lowest part and is encapsulated here so that it can be easily overridden
-for testing.
-
-=cut
 
 sub send_xml_to_freshbooks {
     my $self        = shift;

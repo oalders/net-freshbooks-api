@@ -192,10 +192,14 @@ the update() method, which is described below.
 
 =head3 client->list
 
-Currently, all list() functionality defaults to 15 items per page
+Returns n L<Net::FreshBooks::API::Iterator> object. Currently,
+all list() functionality defaults to 15 items per page.
 
-    # or, list all active clients
+    #list all active clients
     my $clients = $fb->client->list();
+    
+    print $clients->total . " active clients\n";
+    print $clients->pages . " pages of results\n";
 
     while ( my $client = $clients->next ) {
         print join( "\t", $client->client_id, $client->first_name, $client->last_name ) . "\n";
@@ -205,7 +209,7 @@ To override the default pagination:
 
     my $clients = $fb->client->list({ page => 2, per_page => 35 });
 
-
+See 
 
 =head2 invoice
 
@@ -259,8 +263,27 @@ Please see client->update for an example of how to use this method.
 
     my $invoice = $fb->invoice->get({ invoice_id => $invoice_id });
     $invoice->delete;
+    
+=head3 invoice->links
+
+Returns an object with three methods.  Each method returns a FreshBooks
+URL.
+
+=head4 invoice->links->client_view
+
+    print "send this url to client: " . $invoice->links->client_view;
+
+=head4 invoice->links->view
+
+    print "view invoice in my account: " . $invoice->links->view;
+
+=head4 invoice->links->edit
+
+    print "edit invoice in my account: " . $invoice->links->edit;
 
 =head3 invoice->list
+
+Returns a L<Net::FreshBooks::API::Iterator> object.
 
     my $invoices = $fb->invoice->list;
     while ( my $invoice = $invoices->list ) {
@@ -300,6 +323,8 @@ Please see client->update for an example of how to use this method.
 
 =head3 payment->list
 
+Returns a L<Net::FreshBooks::API::Iterator> object.
+
     my $payments = $fb->payment->list;
     while ( my $payment = $payments->list ) {
         print $payment->payment_id, "\n";
@@ -327,6 +352,8 @@ Please see client->update for an example of how to use this method.
     $item->delete;
 
 =head3 recurring->list
+
+Returns a L<Net::FreshBooks::API::Iterator> object.
 
     my $recurrings = $fb->recurring->list;
     while ( my $recurring = $recurrings->list ) {
