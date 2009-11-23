@@ -4,7 +4,7 @@ use base 'Class::Accessor::Fast';
 use strict;
 use warnings;
 
-our $VERSION = '0.09';
+our $VERSION = '0.10';
 
 use Carp qw( carp croak );
 use URI;
@@ -31,7 +31,7 @@ Net::FreshBooks::API - Easy OO access to the FreshBooks.com API
 
 =head1 VERSION
 
-Version 0.09
+Version 0.10
 
 =head1 SYNOPSIS
 
