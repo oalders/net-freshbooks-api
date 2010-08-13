@@ -266,7 +266,8 @@ Please see client->update for an example of how to use this method.
 
 =head3 invoice->list
 
-    my $invoices = $fb->invoice->list;
+    # list unpaid invoices
+    my $invoices = $fb->invoice->list({ status => 'unpaid' });
     while ( my $invoice = $invoices->list ) {
         print $invoice->invoice_id, "\n";
     }
