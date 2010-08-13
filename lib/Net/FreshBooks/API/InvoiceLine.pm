@@ -1,8 +1,8 @@
-package Net::FreshBooks::API::InvoiceLine;
-use base 'Net::FreshBooks::API::Base';
-
 use strict;
 use warnings;
+
+package Net::FreshBooks::API::InvoiceLine;
+use base 'Net::FreshBooks::API::Base';
 
 __PACKAGE__->mk_accessors( __PACKAGE__->field_names );
 

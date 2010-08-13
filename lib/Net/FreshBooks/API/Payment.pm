@@ -1,8 +1,8 @@
-package Net::FreshBooks::API::Payment;
-use base 'Net::FreshBooks::API::Base';
-
 use strict;
 use warnings;
+
+package Net::FreshBooks::API::Payment;
+use base 'Net::FreshBooks::API::Base';
 
 use Net::FreshBooks::API::Links;
 

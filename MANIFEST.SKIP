@@ -1,8 +1,0 @@
-^t/config.pl$
-^blib/
-^Makefile$
-^pm_to_blib
-.bak$
-.old$
-^Net-FreshBooks-API-
-.DS_Store

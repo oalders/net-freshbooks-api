@@ -1,7 +1,7 @@
 
 # This is a sample of the config file required for testing actual API calls to
 # the live FreshBooks site (at the moment there is no sandbox). Be aware that
-# running the tests will interact with your account, so it is essuntial that
+# running the tests will interact with your account, so it is essential that
 # you create a test account for testing.
 
 # Copy this file to 't/config.pl' and enter the details needed.

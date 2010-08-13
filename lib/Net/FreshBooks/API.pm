@@ -1,10 +1,8 @@
-package Net::FreshBooks::API;
-use base 'Class::Accessor::Fast';
-
 use strict;
 use warnings;
 
-our $VERSION = '0.10';
+package Net::FreshBooks::API;
+use base 'Class::Accessor::Fast';
 
 use Carp qw( carp croak );
 use URI;
@@ -25,13 +23,7 @@ use Net::FreshBooks::API::Invoice;
 use Net::FreshBooks::API::Payment;
 use Net::FreshBooks::API::Recurring;
 
-=head1 NAME
-
-Net::FreshBooks::API - Easy OO access to the FreshBooks.com API
-
-=head1 VERSION
-
-Version 0.10
+# ABSTRACT: Easy OO access to the FreshBooks.com API
 
 =head1 SYNOPSIS
 
@@ -125,9 +117,9 @@ as create, update, get, list and delete.
 
 =head1 DESCRIPTION
 
-L<http://www.freshbooks.com> is a website that lets you create, send and manage invoices.
-This module is an OO abstraction of their API that lets you work with Clients,
-Invoices etc as if they were standard Perl objects.
+L<http://www.freshbooks.com> is a website that lets you create, send and
+manage invoices. This module is an OO abstraction of their API that lets you
+work with Clients, Invoices etc as if they were standard Perl objects.
 
 Repository: L<http://github.com/oalders/net-freshbooks-api/tree/master>
 
@@ -396,30 +388,29 @@ Return a LWP::UserAgent object to use when contacting the server.
     my $deletion_count
         = $fb->delete_everything_from_this_test_account();
 
-Deletes all clients, invoices and payments from this account. This is convenient
-when testing but potentially very dangerous. To prevent accidential deletions
-this method has a very long name, and will croak if the account name does not
-end with 'test'.
+Deletes all clients, invoices and payments from this account. This is
+convenient when testing but potentially very dangerous. To prevent accidential
+deletions this method has a very long name, and will croak if the account name
+does not end with 'test'.
 
 As a general rule it is best to put this at the B<start> of your test scripts
-rather than at the end. This will let you inspect your account at the end of the
-test script to see what is left behind.
+rather than at the end. This will let you inspect your account at the end of
+the test script to see what is left behind.
 
 =head1 WARNING
 
 This code is still under development - any and all patches most welcome.
 
-The documentation is by no means complete.   Feel free to look at the test
-files for more examples of usage.
+The documentation is by no means complete. Feel free to look at the test files
+for more examples of usage.
 
 Up to this point, only clients, invoices and recurring items have been
-implemented, but other functionality may be added as needed.
-If you need other details, they should be very easy to add. Please get in
-touch.
+implemented, but other functionality may be added as needed. If you need other
+details, they should be very easy to add. Please get in touch.
 
-=head1 AUTHOR
+=head1 AUTHOR CREDITS
 
-Edmund von der Burg C<<evdb@ecclestoad.co.uk>>
+Edmund von der Burg C<<evdb@ecclestoad.co.uk>> (Original Author)
 
 Developed for HinuHinu L<http://www.hinuhinu.com/>.
 
@@ -428,10 +419,6 @@ Recurring item support by:
 Olaf Alders olaf@raybec.com
 
 Developed for Raybec Communications L<http://www.raybec.com>
-
-=head1 LICENCE
-
-Perl
 
 =head1 SEE ALSO
 
@@ -558,7 +545,7 @@ sub ua {
     return $CACHED_UA if $CACHED_UA;
 
     my $class = ref( $self ) || $self;
-    my $version = $VERSION;
+    my $version = $Net::FreshBooks::API::VERSION;
 
     my $ua = LWP::UserAgent->new(
         agent             => "$class (v$version)",

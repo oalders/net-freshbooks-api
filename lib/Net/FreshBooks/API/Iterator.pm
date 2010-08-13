@@ -1,8 +1,8 @@
-package Net::FreshBooks::API::Iterator;
-use base 'Class::Accessor::Fast';
-
 use strict;
 use warnings;
+
+package Net::FreshBooks::API::Iterator;
+use base 'Class::Accessor::Fast';
 
 use Net::FreshBooks::API::Base;
 use Data::Dump qw( dump );

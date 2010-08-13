@@ -1,7 +1,7 @@
-package Net::FreshBooks::API::Recurring;
-
 use strict;
 use warnings;
+
+package Net::FreshBooks::API::Recurring;
 
 use base 'Net::FreshBooks::API::Invoice';
 

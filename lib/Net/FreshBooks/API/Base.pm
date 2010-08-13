@@ -1,8 +1,8 @@
-package Net::FreshBooks::API::Base;
-use base 'Class::Accessor::Fast';
-
 use strict;
 use warnings;
+
+package Net::FreshBooks::API::Base;
+use base 'Class::Accessor::Fast';
 
 use Carp qw( carp croak );
 use Clone qw(clone);

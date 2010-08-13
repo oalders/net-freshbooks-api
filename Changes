@@ -1,5 +1,8 @@
 Revision history for Perl module Net::FreshBooks::API
 
+0.11 2010-08-??
+    - Move distro management to Dist::Zilla
+
 0.10 2009-11-23
     - Iterator's next() method now returns cloned objects
     - Added documentation for Invoice links() and list() functionality
