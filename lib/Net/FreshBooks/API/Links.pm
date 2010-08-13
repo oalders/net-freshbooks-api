@@ -11,10 +11,6 @@ sub fields {
         client_view => { mutable => 0, },
         view        => { mutable => 0, },
         edit        => { mutable => 0, },
-
-        # => { mutable => 0, },
-        # => { mutable => 0, },
-        # => { mutable => 0, },
     };
 }
 
