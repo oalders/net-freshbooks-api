@@ -18,13 +18,14 @@ use_ok 'Net::FreshBooks::API';
 my $fb = Net::FreshBooks::API->new(
     {   auth_token   => FBTest->get( 'auth_token' ),
         account_name => FBTest->get( 'account_name' ),
-
-        #verbose     => 1,
+        verbose     => $ENV{'FB_VERBOSE'} || 0,
     }
 );
 
 ok $fb, "created the FB object";
 can_ok( $fb, 'recurring' );
+
+diag( "verbose: " . $fb->verbose );
 
 my $recurring = $fb->recurring;
 

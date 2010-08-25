@@ -25,13 +25,16 @@ SKIP: {
     my $oauth = Net::FreshBooks::API::OAuth->new( %tokens );
     isa_ok( $oauth, 'Net::FreshBooks::API::OAuth' );
     
-    my $api = Net::FreshBooks::API->new( %tokens );
+    my $api = Net::FreshBooks::API->new( %tokens, verbose => 1 );
     isa_ok( $api, 'Net::FreshBooks::API' );
+    ok( !$api->_oauth_ok, "oauth object does not yet exist");
     
     can_ok( $api, 'oauth' );
     
     isa_ok( $api->oauth, 'Net::FreshBooks::API::OAuth');
+    ok( $api->_oauth_ok, "oauth object should exist now");
     ok( !$api->oauth->authorized, "should not be authorized" );
+    ok( !$api->_oauth_authorized, "should not be authorized" );
     
     if ( exists $ENV{'FB_ACCESS_TOKEN'} && exists $ENV{'FB_ACCESS_TOKEN_SECRET'} ) {
         $api->oauth->access_token( $ENV{'FB_ACCESS_TOKEN'} );
@@ -39,5 +42,6 @@ SKIP: {
     }
     
     ok( $api->oauth->authorized, "is now authorized" );
+    ok( $api->_oauth_authorized, "is now authorized" );
     
 }

@@ -498,11 +498,7 @@ sub send_xml_to_freshbooks {
         $xml_to_send         # content
     );
 
-    $fb->_clog($request);
-
     my $response = $ua->request($request);
-
-    $fb->_clog($response);
 
     croak "FreshBooks request failed: " . $response->status_line
         unless $response->is_success;
