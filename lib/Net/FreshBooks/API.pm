@@ -19,14 +19,160 @@ has 'api_version'        => ( is => 'rw', default => 2.1 );
 has 'auth_realm'         => ( is => 'rw', default => 'FreshBooks' );
 has 'oauth'              => ( is => 'rw', lazy_build => 1 );
 has 'ua'                 => ( is => 'rw', lazy_build => 1 );
-has '_oauth_ok'          => ( is => 'rw', default => 0 );
 has 'verbose'            => ( is => 'rw', default => 0 );
+has '_oauth_ok'          => ( is => 'rw', default => 0 );
 
 # oauth methods
 has 'access_token'        => ( is => 'rw' );
 has 'access_token_secret' => ( is => 'rw' );
 has 'consumer_key'        => ( is => 'rw' );
 has 'consumer_secret'     => ( is => 'rw' );
+
+sub _log {    ## no critic
+    
+    my $self = shift;
+    return if !$self->verbose;
+    
+    my ( $level, $message ) = @_;
+    $message .= "\n" if $message !~ m{\n/z}x;
+    carp "$level: $message";
+    
+    return;
+
+}
+
+sub ping {
+    my $self = shift;
+    eval { $self->client->list() };
+
+    $self->_log( debug => $@ ? "ping failed: $@" : "ping succeeded" );
+    return if $@;
+    return 1;
+}
+
+sub service_url {
+    my $self = shift;
+
+    my $uri
+        = URI->new( 'https://'
+            . $self->account_name
+            . '.freshbooks.com/api/'
+            . $self->api_version
+            . '/xml-in' );
+
+    return $uri;
+}
+
+sub client {
+    my $self = shift;
+    my $args = shift || {};
+    return Net::FreshBooks::API::Client->new( { _fb => $self, %$args } );
+}
+
+sub invoice {
+    my $self = shift;
+    my $args = shift || {};
+    return Net::FreshBooks::API::Invoice->new( { _fb => $self, %$args } );
+}
+
+sub payment {
+    my $self = shift;
+    my $args = shift || {};
+    return Net::FreshBooks::API::Payment->new( { _fb => $self, %$args } );
+}
+
+sub recurring {
+    my $self = shift;
+    my $args = shift || {};
+    return Net::FreshBooks::API::Recurring->new( { _fb => $self, %$args } );
+}
+
+sub _build_ua {
+    my $self = shift;
+
+    my $class = ref( $self ) || $self;
+    my $version = $Net::FreshBooks::API::VERSION || '0.00';
+
+    my $ua = LWP::UserAgent->new(
+        agent             => "$class (v$version)",
+        protocols_allowed => ['https'],
+        keep_alive        => 10,
+    );
+
+    $ua->credentials(    #
+        $self->service_url->host_port,    # net loc
+        $self->auth_realm,                # realm
+        $self->auth_token,                # username
+        ''                                # password (none - all in username)
+    );
+
+    $ua->credentials(                     #
+        $self->service_url->host_port,    # net loc
+        '',                               # realm (none)
+        $self->auth_token,                # username
+        ''                                # password (none - all in username)
+    );
+
+    return $ua;
+}
+
+sub delete_everything_from_this_test_account {
+
+    my $self = shift;
+
+    my $name = $self->account_name;
+    croak(    "ERROR: account_name must end with 'test' to use"
+            . " the method delete_everything_on_this_test_account"
+            . " - your account name is '$name'" )
+        if ( $name !~ m{ test \z }x && $name ne 'netfreshbooksapi' );
+
+    my $delete_count = 0;
+
+    # note: 'payments' can't be deleted
+    my @names_to_delete = qw( invoice client );
+
+    # clear out all existing clients etc on this account.
+    foreach my $object_name ( @names_to_delete ) {
+        my $objects_to_delete = $self->$object_name->list();
+        while ( my $obj = $objects_to_delete->next ) {
+            $obj->delete;
+            $delete_count++;
+        }
+    }
+
+    return $delete_count;
+}
+
+sub _build_oauth {
+
+    my $self = shift;
+
+    my %tokens = (
+        consumer_key    => $self->consumer_key,
+        consumer_secret => $self->consumer_secret,
+    );
+
+    if ( $self->access_token && $self->access_token_secret ) {
+        $tokens{'access_token'}        = $self->access_token;
+        $tokens{'access_token_secret'} = $self->access_token_secret;
+    }
+
+    my $oauth = Net::FreshBooks::API::OAuth->new( %tokens );
+
+    $self->_oauth_ok( 1 );
+    return $oauth;
+
+}
+
+sub _oauth_authorized {
+
+    my $self = shift;
+    return $self->_oauth_ok && $self->oauth->authorized;
+
+}
+__PACKAGE__->meta->make_immutable();
+
+1;
 
 # ABSTRACT: Easy OO access to the FreshBooks.com API
 
@@ -437,148 +583,3 @@ L<http://developers.freshbooks.com/overview/> the FreshBooks API documentation.
 
 =cut
 
-sub _log {    ## no critic
-    
-    my $self = shift;
-    return if !$self->verbose;
-    
-    my ( $level, $message ) = @_;
-    $message .= "\n" if $message !~ m{\n/z}x;
-    carp "$level: $message";
-    
-    return;
-
-}
-
-sub ping {
-    my $self = shift;
-    eval { $self->client->list() };
-
-    $self->_log( debug => $@ ? "ping failed: $@" : "ping succeeded" );
-    return if $@;
-    return 1;
-}
-
-sub service_url {
-    my $self = shift;
-
-    my $uri
-        = URI->new( 'https://'
-            . $self->account_name
-            . '.freshbooks.com/api/'
-            . $self->api_version
-            . '/xml-in' );
-
-    return $uri;
-}
-
-sub client {
-    my $self = shift;
-    my $args = shift || {};
-    return Net::FreshBooks::API::Client->new( { _fb => $self, %$args } );
-}
-
-sub invoice {
-    my $self = shift;
-    my $args = shift || {};
-    return Net::FreshBooks::API::Invoice->new( { _fb => $self, %$args } );
-}
-
-sub payment {
-    my $self = shift;
-    my $args = shift || {};
-    return Net::FreshBooks::API::Payment->new( { _fb => $self, %$args } );
-}
-
-sub recurring {
-    my $self = shift;
-    my $args = shift || {};
-    return Net::FreshBooks::API::Recurring->new( { _fb => $self, %$args } );
-}
-
-sub _build_ua {
-    my $self = shift;
-
-    my $class = ref( $self ) || $self;
-    my $version = $Net::FreshBooks::API::VERSION || '0.00';
-
-    my $ua = LWP::UserAgent->new(
-        agent             => "$class (v$version)",
-        protocols_allowed => ['https'],
-        keep_alive        => 10,
-    );
-
-    $ua->credentials(    #
-        $self->service_url->host_port,    # net loc
-        $self->auth_realm,                # realm
-        $self->auth_token,                # username
-        ''                                # password (none - all in username)
-    );
-
-    $ua->credentials(                     #
-        $self->service_url->host_port,    # net loc
-        '',                               # realm (none)
-        $self->auth_token,                # username
-        ''                                # password (none - all in username)
-    );
-
-    return $ua;
-}
-
-sub delete_everything_from_this_test_account {
-
-    my $self = shift;
-
-    my $name = $self->account_name;
-    croak(    "ERROR: account_name must end with 'test' to use"
-            . " the method delete_everything_on_this_test_account"
-            . " - your account name is '$name'" )
-        if ( $name !~ m{ test \z }x && $name ne 'netfreshbooksapi' );
-
-    my $delete_count = 0;
-
-    # note: 'payments' can't be deleted
-    my @names_to_delete = qw( invoice client );
-
-    # clear out all existing clients etc on this account.
-    foreach my $object_name ( @names_to_delete ) {
-        my $objects_to_delete = $self->$object_name->list();
-        while ( my $obj = $objects_to_delete->next ) {
-            $obj->delete;
-            $delete_count++;
-        }
-    }
-
-    return $delete_count;
-}
-
-sub _build_oauth {
-
-    my $self = shift;
-
-    my %tokens = (
-        consumer_key    => $self->consumer_key,
-        consumer_secret => $self->consumer_secret,
-    );
-
-    if ( $self->access_token && $self->access_token_secret ) {
-        $tokens{'access_token'}        = $self->access_token;
-        $tokens{'access_token_secret'} = $self->access_token_secret;
-    }
-
-    my $oauth = Net::FreshBooks::API::OAuth->new( %tokens );
-
-    $self->_oauth_ok( 1 );
-    return $oauth;
-
-}
-
-sub _oauth_authorized {
-
-    my $self = shift;
-    return $self->_oauth_ok && $self->oauth->authorized;
-
-}
-__PACKAGE__->meta->make_immutable();
-
-1;
