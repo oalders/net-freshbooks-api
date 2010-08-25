@@ -17,11 +17,15 @@ has 'account_name'       => ( is => 'rw' );
 has 'auth_token'         => ( is => 'rw' );
 has 'api_version'        => ( is => 'rw', default => 2.1 );
 has 'auth_realm'         => ( is => 'rw', default => 'FreshBooks' );
-has 'consumer_key'       => ( is => 'rw' );
-has 'consumer_secret'    => ( is => 'rw' );
 has 'oauth'              => ( is => 'rw', lazy_build => 1 );
 has '_communication_log' => ( is => 'rw' );
 has '_verbose'           => ( is => 'rw' );
+
+# oauth methods
+has 'access_token'        => ( is => 'rw' );
+has 'access_token_secret' => ( is => 'rw' );
+has 'consumer_key'        => ( is => 'rw' );
+has 'consumer_secret'     => ( is => 'rw' );
 
 # ABSTRACT: Easy OO access to the FreshBooks.com API
 
@@ -33,10 +37,10 @@ has '_verbose'           => ( is => 'rw' );
     my $fb = Net::FreshBooks::API->new(
         {   auth_token   => $auth_token,
             account_name => $account_name,
-            verbose      => 0, # turn on for XML debugging etc
+            verbose      => 0,               # turn on for XML debugging etc
         }
     );
-
+    
     # create a new client
     my $client = $fb->client->create(
         {   first_name   => 'Larry',
@@ -45,21 +49,21 @@ has '_verbose'           => ( is => 'rw' );
             email        => 'larry@example.com',
         }
     );
-
+    
     # we can now make changes to the client and save them
-    $client->organization('Perl Foundation');
+    $client->organization( 'Perl Foundation' );
     $client->update;
-
+    
     # or more quickly
     $client->update( { organization => 'Perl Foundation', } );
-
+    
     # create an invoice for this client
     my $invoice = $fb->invoice(
         {   client_id => $client->client_id,
             number    => '00001',
         }
     );
-
+    
     # add a line to the invoice
     $invoice->add_line(
         {   name      => 'Hawaiian shirt consulting',
@@ -67,53 +71,57 @@ has '_verbose'           => ( is => 'rw' );
             quantity  => 4,
         }
     );
-
+    
     # save the invoice and then send it
     $invoice->create;
     $invoice->send_by_email;
-
+    
     ############################################
     # create a recurring item
     ############################################
-
+    
     use Net::FreshBooks::API;
     use Net::FreshBooks::API::InvoiceLine;
     use DateTime;
-
+    
     # auth_token and account_name come from FreshBooks
     my $fb = Net::FreshBooks::API->new(
         {   auth_token   => $auth_token,
             account_name => $account_name,
         }
     );
-
+    
     # find the first client returned
     my $client = $fb->client->list->next;
-
+    
     # create a line item
-    my $line = Net::FreshBooks::API::InvoiceLine->new({
-        name         => "Widget",
-        description  => "Net::FreshBooks::API Widget",
-        unit_cost    => '1.99',
-        quantity     => 1,
-        tax1_name    => "GST",
-        tax1_percent => 5,
-    });
-
+    my $line = Net::FreshBooks::API::InvoiceLine->new(
+        {   name         => "Widget",
+            description  => "Net::FreshBooks::API Widget",
+            unit_cost    => '1.99',
+            quantity     => 1,
+            tax1_name    => "GST",
+            tax1_percent => 5,
+        }
+    );
+    
     # create the recurring item
-    my $recurring_item = $fb->recurring->create({
-        client_id   => $client->client_id,
-        date        => DateTime->now->add( days => 2 )->ymd, # YYYY-MM-DD
-        frequency   => 'monthly',
-        lines       => [ $line ],
-        notes       => 'Created by Net::FreshBooks::API',
-    });
-
+    my $recurring_item = $fb->recurring->create(
+        {   client_id => $client->client_id,
+            date      => DateTime->now->add( days => 2 )->ymd,    # YYYY-MM-DD
+            frequency => 'monthly',
+            lines     => [$line],
+            notes     => 'Created by Net::FreshBooks::API',
+        }
+    );
+    
     $recurring_item->po_number( 999 );
     $recurring_item->update;
 
-See also L<Net::FreshBooks::API::Base> for other available methods, such
-as create, update, get, list and delete.
+See also L <Net::FreshBooks::API::Base>
+    for other available methods, such as create, update, get, list
+    and delete
+    .
 
 =head1 DESCRIPTION
 
@@ -615,12 +623,15 @@ sub _build_oauth {
         consumer_key    => $self->consumer_key,
         consumer_secret => $self->consumer_secret,
     );
-    
-    return Net::FreshBooks::API::OAuth->new( %tokens );
-    
-}
-    
 
+    if ( $self->access_token && $self->access_token_secret ) {
+        $tokens{'access_token'}        = $self->access_token;
+        $tokens{'access_token_secret'} = $self->access_token_secret;
+    }
+
+    return Net::FreshBooks::API::OAuth->new( %tokens );
+
+}
 __PACKAGE__->meta->make_immutable();
 
 1;
