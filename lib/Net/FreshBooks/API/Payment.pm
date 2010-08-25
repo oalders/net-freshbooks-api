@@ -2,7 +2,9 @@ use strict;
 use warnings;
 
 package Net::FreshBooks::API::Payment;
-use base 'Net::FreshBooks::API::Base';
+
+use Moose;
+extends 'Net::FreshBooks::API::Base';
 
 use Net::FreshBooks::API::Links;
 
@@ -20,5 +22,7 @@ sub fields {
         notes  => { mutable => 1, },
     };
 }
+
+__PACKAGE__->meta->make_immutable( inline_constructor => 0 );
 
 1;

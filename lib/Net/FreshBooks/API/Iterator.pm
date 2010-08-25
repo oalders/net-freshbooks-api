@@ -2,7 +2,9 @@ use strict;
 use warnings;
 
 package Net::FreshBooks::API::Iterator;
-use base 'Class::Accessor::Fast';
+
+use Moose;
+extends 'Class::Accessor::Fast';
 
 use Net::FreshBooks::API::Base;
 use Data::Dump qw( dump );
@@ -103,5 +105,7 @@ sub next {    ## no critic
     # object to be returned
     return $self->parent_object->clone->_fill_in_from_node( $next_node );
 }
+
+__PACKAGE__->meta->make_immutable( inline_constructor => 0 );
 
 1;

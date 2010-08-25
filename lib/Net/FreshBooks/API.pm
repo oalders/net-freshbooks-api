@@ -2,26 +2,26 @@ use strict;
 use warnings;
 
 package Net::FreshBooks::API;
-use base 'Class::Accessor::Fast';
+use Moose;
 
 use Carp qw( carp croak );
-use URI;
 use Data::Dump qw( dump );
-use Path::Class;
-
-__PACKAGE__->mk_accessors(
-    'account_name',         #
-    'auth_token',           #
-    'verbose',              #
-    'communication_log',    #
-    'api_version',          #
-    'auth_realm',           #
-);
-
 use Net::FreshBooks::API::Client;
 use Net::FreshBooks::API::Invoice;
 use Net::FreshBooks::API::Payment;
 use Net::FreshBooks::API::Recurring;
+use Path::Class;
+use URI;
+
+has 'account_name'       => ( is => 'rw' );
+has 'auth_token'         => ( is => 'rw' );
+has 'api_version'        => ( is => 'rw', default => 2.1 );
+has 'auth_realm'         => ( is => 'rw', default => 'FreshBooks' );
+has 'consumer_key'       => ( is => 'rw' );
+has 'consumer_secret'    => ( is => 'rw' );
+has 'oauth'              => ( is => 'rw', lazy_build => 1 );
+has '_communication_log' => ( is => 'rw' );
+has '_verbose'           => ( is => 'rw' );
 
 # ABSTRACT: Easy OO access to the FreshBooks.com API
 
@@ -428,63 +428,15 @@ L<http://developers.freshbooks.com/overview/> the FreshBooks API documentation.
 
 =cut
 
-
-
-sub new {
-    my $class = shift;
-    my $args  = shift;
-
-    croak "Need both an account_name and an auth_token"
-        unless $args->{account_name} && $args->{auth_token};
-
-    $args->{api_version} ||= 2.1;
-    $args->{auth_realm}  ||= 'FreshBooks';
-
-    # configure the logging
-    if ( $args->{verbose} ) {
-        if ( ref $args->{verbose} ne 'CODE' ) {
-            $args->{verbose} = sub {
-                my ( $level, $message ) = @_;
-                $message .= "\n" if $message !~ m{\n/z}x;
-                carp "$level: $message";
-            };
-        }
-    }
-    else {
-        $args->{verbose} = sub { 1; };
-    }
-
-    if ( $args->{communication_log} ) {
-        if ( ref $args->{communication_log} ne 'CODE' ) {
-            my $file = file( $args->{communication_log} )->absolute;
-            $args->{communication_log} = sub {
-                my ( $message ) = @_;
-                my $fh = $file->open( 'a' )
-                    || croak "Could not open for append: $file";
-                $fh->print(
-                    $message->as_string . "\n\n" . '-' x 80 . "\n\n" );
-            };
-        }
-    }
-    else {
-        $args->{communication_log} = sub { 1; };
-    }
-
-    return bless {%$args}, $class;
-}
-
-
 sub _log {    ## no critic
     my $self = shift;
     return $self->verbose->( @_ );
 }
 
-
 sub _clog {    ## no critic
     my $self = shift;
     return $self->communication_log->( @_ );
 }
-
 
 sub ping {
     my $self = shift;
@@ -494,7 +446,6 @@ sub ping {
     return if $@;
     return 1;
 }
-
 
 sub service_url {
     my $self = shift;
@@ -509,13 +460,11 @@ sub service_url {
     return $uri;
 }
 
-
 sub client {
     my $self = shift;
     my $args = shift || {};
     return Net::FreshBooks::API::Client->new( { _fb => $self, %$args } );
 }
-
 
 sub invoice {
     my $self = shift;
@@ -523,20 +472,17 @@ sub invoice {
     return Net::FreshBooks::API::Invoice->new( { _fb => $self, %$args } );
 }
 
-
 sub payment {
     my $self = shift;
     my $args = shift || {};
     return Net::FreshBooks::API::Payment->new( { _fb => $self, %$args } );
 }
 
-
 sub recurring {
     my $self = shift;
     my $args = shift || {};
     return Net::FreshBooks::API::Recurring->new( { _fb => $self, %$args } );
 }
-
 
 my $CACHED_UA = undef;
 
@@ -545,7 +491,7 @@ sub ua {
     return $CACHED_UA if $CACHED_UA;
 
     my $class = ref( $self ) || $self;
-    my $version = $Net::FreshBooks::API::VERSION;
+    my $version = $Net::FreshBooks::API::VERSION || '0.00';
 
     my $ua = LWP::UserAgent->new(
         agent             => "$class (v$version)",
@@ -569,7 +515,6 @@ sub ua {
 
     return $CACHED_UA = $ua;
 }
-
 
 sub delete_everything_from_this_test_account {
 
@@ -598,5 +543,84 @@ sub delete_everything_from_this_test_account {
     return $delete_count;
 }
 
+sub communication_log {
+
+    my $self = shift;
+    my $arg  = shift;
+
+    if ( !defined( $arg ) && defined( $self->_communication_log ) ) {
+        return $self->_communication_log;
+    }
+
+    if ( !defined( $arg ) ) {
+        $self->_communication_log( sub { 1; } );
+    }
+
+    elsif ( ref $arg eq 'CODE' ) {
+        $self->_communication_log( $arg );
+    }
+
+    else {
+        my $file = file( $arg )->absolute;
+
+        my $sub = sub {
+            my ( $message ) = @_;
+            my $fh = $file->open( 'a' )
+                || croak "Could not open for append: $file";
+            $fh->print( $message->as_string . "\n\n" . '-' x 80 . "\n\n" );
+        };
+
+        $self->_communication_log( $sub );
+    }
+
+    return $self->_communication_log;
+
+}
+
+sub verbose {
+
+    my $self = shift;
+    my $arg  = shift;
+
+    if ( !defined( $arg ) && defined( $self->_verbose ) ) {
+        return $self->_verbose;
+    }
+
+    if ( !defined( $arg ) ) {
+        $self->_verbose( sub { 1; } );
+    }
+
+    elsif ( ref $arg eq 'CODE' ) {
+        $self->_verbose( $arg );
+    }
+
+    else {
+        my $sub = sub {
+            my ( $level, $message ) = @_;
+            $message .= "\n" if $message !~ m{\n/z}x;
+            carp "$level: $message";
+        };
+        $self->_verbose( $sub );
+    }
+
+    return $self->_verbose;
+
+}
+
+sub _build_oauth {
+
+    my $self = shift;
+
+    my %tokens = (
+        consumer_key    => $self->consumer_key,
+        consumer_secret => $self->consumer_secret,
+    );
+    
+    return Net::FreshBooks::API::OAuth->new( %tokens );
+    
+}
+    
+
+__PACKAGE__->meta->make_immutable();
 
 1;

@@ -2,7 +2,8 @@ use strict;
 use warnings;
 
 package Net::FreshBooks::API::InvoiceLine;
-use base 'Net::FreshBooks::API::Base';
+use Moose;
+extends 'Net::FreshBooks::API::Base';
 
 __PACKAGE__->mk_accessors( __PACKAGE__->field_names );
 
@@ -21,5 +22,7 @@ sub fields {
 }
 
 sub node_name { return 'line' }
+
+__PACKAGE__->meta->make_immutable( inline_constructor => 0 );
 
 1;
