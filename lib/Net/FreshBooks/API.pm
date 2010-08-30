@@ -52,10 +52,14 @@ sub ping {
 
 sub service_url {
     my $self = shift;
+    my $account_name = $self->account_name;
+    if ( $self->_oauth_authorized ) {
+        $account_name = $self->consumer_key;
+    }
 
     my $uri
         = URI->new( 'https://'
-            . $self->account_name
+            . $account_name
             . '.freshbooks.com/api/'
             . $self->api_version
             . '/xml-in' );

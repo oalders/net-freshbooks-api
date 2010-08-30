@@ -44,4 +44,6 @@ SKIP: {
     ok( $api->oauth->authorized, "is now authorized" );
     ok( $api->_oauth_authorized, "is now authorized" );
     
+    ok( $api->ping );
+    
 }

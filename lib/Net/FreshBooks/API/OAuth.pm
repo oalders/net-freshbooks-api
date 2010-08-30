@@ -37,4 +37,11 @@ sub new {
 
 }
 
+=head2 SYNOPSIS
+
+This package subclasses Net::OAuth::Simple, which is itself a wrapper around
+Net::OAuth
+
+=cut
+
 1;

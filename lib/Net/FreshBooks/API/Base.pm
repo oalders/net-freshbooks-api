@@ -7,6 +7,7 @@ use base 'Class::Accessor::Fast';
 use Carp qw( carp croak );
 use Clone qw(clone);
 use Data::Dump qw( dump );
+
 #use Devel::SimpleTrace;
 use XML::LibXML ':libxml';
 use XML::Simple;
@@ -22,7 +23,7 @@ my %plural_to_singular = (
     nesteds  => 'nested',    # for testing
 );
 
-__PACKAGE__->mk_accessors('_fb');
+__PACKAGE__->mk_accessors( '_fb' );
 
 =head2 new_from_node
 
@@ -157,7 +158,7 @@ sub new_from_node {
 
     my $self = bless {}, $class;
 
-    $self->_fill_in_from_node($node);
+    $self->_fill_in_from_node( $node );
 
     return $self;
 }
@@ -171,7 +172,7 @@ sub copy {
 sub create {
     my $self   = shift;
     my $args   = shift;
-    my $method = $self->method_string('create');
+    my $method = $self->method_string( 'create' );
 
     # add any additional argument to ourselves
     $self->$_( $args->{$_} ) for keys %$args;
@@ -192,14 +193,14 @@ sub create {
     );
 
     my $xpath  = '//response/' . $self->id_field;
-    my $new_id = $res->findvalue($xpath);
+    my $new_id = $res->findvalue( $xpath );
 
     return $self->get( { $self->id_field => $new_id } );
 }
 
 sub update {
     my $self   = shift;
-    my $method = $self->method_string('update');
+    my $method = $self->method_string( 'update' );
 
     my %args = ();
     $args{$_} = $self->$_ for ( $self->field_names_rw, $self->id_field );
@@ -218,7 +219,7 @@ sub update {
 sub get {
     my $self   = shift;
     my $args   = shift;
-    my $method = $self->method_string('get');
+    my $method = $self->method_string( 'get' );
 
     my $res = $self->send_request(
         {   _method => $method,
@@ -226,7 +227,7 @@ sub get {
         }
     );
 
-    return $self->_fill_in_from_node($res);
+    return $self->_fill_in_from_node( $res );
 }
 
 sub _fill_in_from_node {
@@ -251,7 +252,7 @@ sub _fill_in_from_node {
         # check that this field is not a special one
         if ( my $made_of = $fields_config->{$key}{made_of} ) {
 
-            my ($match) = $node->findnodes($xpath);
+            my ( $match ) = $node->findnodes( $xpath );
 
             # avoid this error: Can't call method "childNodes" on an undefined
             # value at /tmp/net-freshbooks-api/lib/Net/FreshBooks/API/Base.pm
@@ -261,22 +262,22 @@ sub _fill_in_from_node {
             if ( $fields_config->{$key}{presented_as} eq 'array' ) {
 
                 my @new_objects =    #
-                    map { $made_of->new_from_node($_) }    #
+                    map { $made_of->new_from_node( $_ ) }    #
                     grep { $_->nodeType eq XML_ELEMENT_NODE }
                     $match->childNodes();
 
                 $self->{$key} = \@new_objects;
             }
             else {
-                $self->{$key}                              #
-                    = $match                               #
-                    ? $made_of->new_from_node($match)      #
+                $self->{$key}                                #
+                    = $match                                 #
+                    ? $made_of->new_from_node( $match )      #
                     : undef;
             }
 
         }
         else {
-            my $val = $node->findvalue($xpath);
+            my $val = $node->findvalue( $xpath );
             $self->{$key} = $val;
         }
     }
@@ -284,7 +285,6 @@ sub _fill_in_from_node {
     return $self;
 
 }
-
 
 sub list {
     my $self = shift;
@@ -297,12 +297,11 @@ sub list {
     );
 }
 
-
 sub delete {    ## no critic
     ## use critic
     my $self = shift;
 
-    my $method   = $self->method_string('delete');
+    my $method   = $self->method_string( 'delete' );
     my $id_field = $self->id_field;
 
     my $res = $self->send_request(
@@ -313,7 +312,6 @@ sub delete {    ## no critic
 
     return 1;
 }
-
 
 sub send_request {
     my $self = shift;
@@ -328,19 +326,19 @@ sub send_request {
 
     $fb->_log( debug => "Sending request for $method" );
 
-    my $request_xml = $self->parameters_to_request_xml($args);
+    my $request_xml = $self->parameters_to_request_xml( $args );
 
     $request_xml
         =~ s{<frequency>($pattern)</frequency>}{<frequency>$frequency_fix{$1}</frequency>}gxms;
 
     $fb->_log( debug => $request_xml );
 
-    my $return_xml = $self->send_xml_to_freshbooks($request_xml);
+    my $return_xml = $self->send_xml_to_freshbooks( $request_xml );
 
     $fb->_log( debug => $return_xml );
     $self->{'__return_xml'} = $return_xml;
 
-    my $response_node = $self->response_xml_to_node($return_xml);
+    my $response_node = $self->response_xml_to_node( $return_xml );
 
     $fb->_log( debug => "Received response for $method" );
 
@@ -349,7 +347,6 @@ sub send_request {
     return $response_node;
 }
 
-
 sub method_string {
     my $self   = shift;
     my $action = shift;
@@ -357,35 +354,28 @@ sub method_string {
     return $self->api_name . '.' . $action;
 }
 
-
 sub api_name {
     my $self = shift;
-    my $name = ref($self) || $self;
+    my $name = ref( $self ) || $self;
     $name =~ s{^.*::}{}x;
     return lc $name;
 }
-
-
 
 sub node_name {
     my $self = shift;
     return $self->api_name;
 }
 
-
 sub id_field {
     my $self = shift;
     return $self->api_name . "_id";
 }
-
 
 sub field_names {
     my $self  = shift;
     my @names = sort keys %{ $self->fields };
     return @names;
 }
-
-
 
 sub field_names_rw {
     my $self   = shift;
@@ -398,22 +388,19 @@ sub field_names_rw {
     return @names;
 }
 
-
-
 sub parameters_to_request_xml {
     my $self       = shift;
-    my $parameters = clone(shift);
+    my $parameters = clone( shift );
 
     my $dom = XML::LibXML::Document->new( '1.0', 'utf-8' );
 
-    my $root = XML::LibXML::Element->new('request');
-    $dom->setDocumentElement($root);
+    my $root = XML::LibXML::Element->new( 'request' );
+    $dom->setDocumentElement( $root );
 
     $self->construct_element( $root, $parameters );
 
-    return $dom->toString(1);
+    return $dom->toString( 1 );
 }
-
 
 sub construct_element {
     my $self    = shift;
@@ -425,7 +412,7 @@ sub construct_element {
         my $val = $hashref->{$key};
 
         # keys starting with an underscore are attributes
-        if ( my ($attr_key) = $key =~ m{ \A _ (.*) \z }x ) {
+        if ( my ( $attr_key ) = $key =~ m{ \A _ (.*) \z }x ) {
             $element->setAttribute( $attr_key, $val );
         }
 
@@ -440,18 +427,18 @@ sub construct_element {
             my $singular_key = $plural_to_singular{$key}
                 || croak "couldnot convert '$key' to singular";
 
-            my $wrapper = XML::LibXML::Element->new($key);
-            $element->addChild($wrapper);
+            my $wrapper = XML::LibXML::Element->new( $key );
+            $element->addChild( $wrapper );
 
-            foreach my $entry_val (@$val) {
-                my $entry_node = XML::LibXML::Element->new($singular_key);
-                $wrapper->addChild($entry_node);
+            foreach my $entry_val ( @$val ) {
+                my $entry_node = XML::LibXML::Element->new( $singular_key );
+                $wrapper->addChild( $entry_node );
                 $self->construct_element( $entry_node, $entry_val );
             }
         }
         elsif ( ref $val eq 'HASH' ) {
-            my $wrapper = XML::LibXML::Element->new($key);
-            $element->addChild($wrapper);
+            my $wrapper = XML::LibXML::Element->new( $key );
+            $element->addChild( $wrapper );
 
             $self->construct_element( $wrapper, $val );
 
@@ -462,7 +449,6 @@ sub construct_element {
     return;
 }
 
-
 sub response_xml_to_node {
     my $self = shift;
     my $xml = shift || croak "No XML passed in";
@@ -471,34 +457,42 @@ sub response_xml_to_node {
     $xml =~ s{ \s+ xmlns=\S+ }{}xg;
 
     my $parser = XML::LibXML->new();
-    my $dom    = $parser->parse_string($xml);
+    my $dom    = $parser->parse_string( $xml );
 
     my $response        = $dom->documentElement();
-    my $response_status = $response->getAttribute('status');
+    my $response_status = $response->getAttribute( 'status' );
 
     if ( $response_status ne 'ok' ) {
-        my $msg = XMLin($xml);
+        my $msg = XMLin( $xml );
         croak "FreshBooks server returned error: '$msg->{'error'}'";
     }
 
     return $response;
 }
 
-
 sub send_xml_to_freshbooks {
     my $self        = shift;
     my $xml_to_send = shift;
     my $fb          = $self->_fb;
     my $ua          = $fb->ua;
+    my $response    = undef;
 
-    my $request = HTTP::Request->new(
-        'POST',              # method
-        $fb->service_url,    # url
-        undef,               # header
-        $xml_to_send         # content
-    );
-
-    my $response = $ua->request($request);
+    if ( $fb->_oauth_ok ) {
+        $fb->_log( "using OAuth" );
+        my %params = ( );
+        $response
+            = $fb->oauth->make_restricted_request( $fb->service_url, 'POST',
+            %params, $xml_to_send );
+    }
+    else {
+        my $request = HTTP::Request->new(
+            'POST',              # method
+            $fb->service_url,    # url
+            undef,               # header
+            $xml_to_send         # content
+        );
+        $response = $ua->request( $request );
+    }
 
     croak "FreshBooks request failed: " . $response->status_line
         unless $response->is_success;
