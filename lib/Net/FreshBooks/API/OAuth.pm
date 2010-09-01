@@ -32,15 +32,122 @@ sub new {
         },
         signature_method => 'PLAINTEXT',
     );
-    
+
     return $class->SUPER::new( %create );
 
 }
 
-=head2 SYNOPSIS
+sub restricted_request {
+
+    my $self    = shift;
+    my $url     = shift;
+    my $content = shift;
+
+    if ( !$self->authorized ) {
+        return $self->_error( "This restricted request is not authorized" );
+    }
+
+    my %request = (
+        consumer_key     => $self->consumer_key,
+        consumer_secret  => $self->consumer_secret,
+        request_url      => $url,
+        request_method   => 'POST',
+        signature_method => $self->signature_method,
+        protocol_version => Net::OAuth::PROTOCOL_VERSION_1_0A,
+        timestamp        => time,
+        nonce            => $self->_nonce,
+        token            => $self->access_token,
+        token_secret     => $self->access_token_secret,
+    );
+
+    my $request = Net::OAuth::ProtectedResourceRequest->new( %request );
+
+    $request->sign;
+
+    if ( !$request->verify ) {
+        return $self->_error(
+            "Couldn't verify request! Check OAuth parameters." );
+    }
+
+    my $params      = $request->to_hash;
+    my @auth_header = ();
+
+    # building the header here because the Net::OAuth::Simple stuff wasn't
+    # authenticating
+    foreach my $key ( keys %{ $request->to_hash } ) {
+        my $name = $key;
+        $name =~ s{-}{_}g;
+        push @auth_header, sprintf( '%s="%s"', $name, $params->{$key} );
+    }
+
+    my $auth = 'OAuth realm="",' . join ",", @auth_header;
+    my $headers = HTTP::Headers->new( Authorization => $auth );
+
+    my $req = HTTP::Request->new( 'POST' => $url, $headers, $content );
+
+    my $response = $self->{browser}->request( $req );
+
+    if ( !$response->is_success ) {
+        return $self->_error( "POST on "
+                . $request->normalized_request_url
+                . " failed: "
+                . $response->status_line . " - "
+                . $response->content );
+    }
+
+    return $response;
+}
+
+=head2 DESCRIPTION
 
 This package subclasses Net::OAuth::Simple, which is itself a wrapper around
-Net::OAuth
+Net::OAuth  You shouldn't need to deal with this class directly, but it's
+available to you if you need it.  Any of the methods which Net::OAuth::Simple
+uses are available to you.  This subclass only overrides the new() method.
+    
+=head2 SYNOPSIS
+
+    # these params are required
+    my $oauth = Net::FreshBooks::API::OAuth->new(
+        consumer_key        => $consumer_key,
+        consumer_secret     => $consumer_secret,
+    );
+
+    # if you already have your access_token and access_token_secret:
+    my $oauth = Net::FreshBooks::API::OAuth->new(
+        consumer_key        => $consumer_key,
+        consumer_secret     => $consumer_secret,
+        access_tokey        => $access_token,
+        access_token_secret => $access_token_secret
+    );
+
+=head2 new()
+
+consumer_key and consumer_key_secret are the two required params:
+
+    my $oauth = Net::FreshBooks::API::OAuth->new(
+        consumer_key        => $consumer_key,
+        consumer_secret     => $consumer_secret,
+    );
+    
+If you have already gotten your access tokens, you may create a new object
+with them as well:
+
+    my $oauth = Net::FreshBooks::API::OAuth->new(
+        consumer_key        => $consumer_key,
+        consumer_secret     => $consumer_secret,
+        access_tokey        => $access_token,
+        access_token_secret => $access_token_secret
+    );
+
+=head2 restricted_request( $url, $content )
+
+If you have provided your consumer and access tokens, you should be able to
+make restricted requests.
+
+    my $request = $oauth->resricted_request( $api_url, $xml )
+    
+Returns an HTTP::Response object
 
 =cut
 

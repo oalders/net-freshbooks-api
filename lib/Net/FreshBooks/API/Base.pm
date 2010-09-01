@@ -2,7 +2,6 @@ use strict;
 use warnings;
 
 package Net::FreshBooks::API::Base;
-#use base 'Class::Accessor::Fast';
 
 use Moose;
 use Carp qw( carp croak );
@@ -352,10 +351,11 @@ sub send_xml_to_freshbooks {
     my $response    = undef;
 
     if ( $fb->_oauth_ok ) {
-        $fb->_log( debug => "using OAuth" );
-        $fb->_log( debug => "sending xml: " . $xml_to_send );
-        my %params = ();
-        $response = $self->restricted_request( $xml_to_send );
+
+        #$fb->_log( debug => "using OAuth" );
+        #$fb->_log( debug => "sending xml: " . $xml_to_send );
+        $response = $fb->oauth->restricted_request( $fb->service_url,
+            $xml_to_send );
     }
     else {
         my $request = HTTP::Request->new(
@@ -371,56 +371,6 @@ sub send_xml_to_freshbooks {
         unless $response->is_success;
 
     return $response->content;
-}
-
-sub restricted_request {
-
-    my $self  = shift;
-    my $oauth = $self->_fb->oauth;
-    return $oauth->_error( "This restricted request is not authorized" )
-        unless $oauth->authorized;
-
-    my $url     = shift;
-    my $method  = uc( shift );
-    my $content = shift;
-
-    my %request = (
-        consumer_key     => $oauth->consumer_key,
-        consumer_secret  => $oauth->consumer_secret,
-        request_url      => $self->_fb->service_url,
-        request_method   => 'POST',
-        signature_method => $oauth->signature_method,
-        protocol_version => 'Net::OAuth::PROTOCOL_VERSION_1_0A',
-        timestamp        => time,
-        nonce            => $oauth->_nonce,
-        token            => $oauth->access_token,
-        token_secret     => $oauth->access_token_secret,
-    );
-
-    my $request = Net::OAuth::ProtectedResourceRequest->new( %request );
-
-    $request->sign;
-    return $oauth->_error(
-        "Couldn't verify request! Check OAuth parameters." )
-        unless $request->verify;
-
-    my $params = $request->to_hash;
-    my $req    = HTTP::Request->new(
-        'POST' => $self->_fb->service_url,
-        undef, $content
-    );
-    my $response = $oauth->{browser}->request( $req );
-    print "x"x20 . dump( $oauth->{browser}) . "\n\n";
-    #print dump( $request );
-    print dump($response);
-    return $oauth->_error( "$method on "
-            . $request->normalized_request_url
-            . " failed: "
-            . $response->status_line . " - "
-            . $response->content )
-        unless ( $response->is_success );
-
-    return $response;
 }
 
 # When FreshBooks returns info on recurring items, it does not return the same

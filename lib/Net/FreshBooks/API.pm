@@ -6,7 +6,7 @@ use Moose;
 
 use Carp qw( carp croak );
 use Data::Dump qw( dump );
-use Devel::SimpleTrace;
+#use Devel::SimpleTrace;
 use Net::FreshBooks::API::Client;
 use Net::FreshBooks::API::Invoice;
 use Net::FreshBooks::API::Payment;

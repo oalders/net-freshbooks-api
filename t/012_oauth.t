@@ -25,7 +25,7 @@ SKIP: {
     my $oauth = Net::FreshBooks::API::OAuth->new( %tokens );
     isa_ok( $oauth, 'Net::FreshBooks::API::OAuth' );
     
-    my $api = Net::FreshBooks::API->new( %tokens, verbose => 1 );
+    my $api = Net::FreshBooks::API->new( %tokens, verbose => $ENV{'FB_VERBOSE'} );
     isa_ok( $api, 'Net::FreshBooks::API' );
     ok( !$api->_oauth_ok, "oauth object does not yet exist");
     
