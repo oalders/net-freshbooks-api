@@ -16,38 +16,6 @@ has 'pages'         => ( is => 'rw' );    # the number of result pages
 has 'item_nodes'    => ( is => 'rw' );    # a list of all items
 has 'current_index' => ( is => 'rw' );    # which item we are currently on
 
-=head2 new
-
-    my $iterator = $class->new(
-        {   parent_object => $parent_object,
-            args         => {...},
-        }
-    );
-
-Create a new iterator object. As part of creating the iterator a request is sent
-to FreshBooks.
-
-=head2 next
-
-    my $next_result = $iterator->next(  );
-
-Returns the next item in the iterator.
-
-=head2 total
-
-Returns the total number of results available, regardless of how many items are
-on the current page.
-
-=head2 pages
-
-Returns the total number of result pages
-
-=head2 current_index
-
-The item we are currently on
-
-=cut
-
 sub new {
     my $class = shift;
     my $self = bless shift, $class;
@@ -105,3 +73,37 @@ sub next {                                               ## no critic
 __PACKAGE__->meta->make_immutable( inline_constructor => 0 );
 
 1;
+
+=pod
+
+=head2 new
+
+    my $iterator = $class->new(
+        {   parent_object => $parent_object,
+            args         => {...},
+        }
+    );
+
+Create a new iterator object. As part of creating the iterator a request is sent
+to FreshBooks.
+
+=head2 next
+
+    my $next_result = $iterator->next(  );
+
+Returns the next item in the iterator.
+
+=head2 total
+
+Returns the total number of results available, regardless of how many items are
+on the current page.
+
+=head2 pages
+
+Returns the total number of result pages
+
+=head2 current_index
+
+The item we are currently on
+
+=cut
