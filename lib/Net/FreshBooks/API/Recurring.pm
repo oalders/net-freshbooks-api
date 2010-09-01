@@ -8,7 +8,10 @@ extends 'Net::FreshBooks::API::Invoice';
 
 use Net::FreshBooks::API::InvoiceLine;
 
-__PACKAGE__->mk_accessors( __PACKAGE__->field_names );
+my $fields = fields();
+foreach my $method ( keys %{$fields} ) {
+    has $method => (  is => $fields->{$method}->{mutable} ? 'rw' : 'ro' );
+}
 
 sub fields {
 

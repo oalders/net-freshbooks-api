@@ -6,7 +6,10 @@ package Net::FreshBooks::API::Links;
 use Moose;
 extends 'Net::FreshBooks::API::Base';
 
-__PACKAGE__->mk_accessors( __PACKAGE__->field_names );
+my $fields = fields();
+foreach my $method ( keys %{$fields} ) {
+    has $method => (  is => $fields->{$method}->{mutable} ? 'rw' : 'ro' );
+}
 
 sub fields {
     return {

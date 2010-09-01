@@ -6,7 +6,6 @@ package Net::FreshBooks::API::Iterator;
 use Moose;
 extends 'Class::Accessor::Fast';
 
-use Net::FreshBooks::API::Base;
 use Data::Dump qw( dump );
 use Lingua::EN::Inflect qw( PL );
 use XML::LibXML ':libxml';

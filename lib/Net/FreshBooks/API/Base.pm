@@ -2,8 +2,9 @@ use strict;
 use warnings;
 
 package Net::FreshBooks::API::Base;
-use base 'Class::Accessor::Fast';
+#use base 'Class::Accessor::Fast';
 
+use Moose;
 use Carp qw( carp croak );
 use Clone qw(clone);
 use Data::Dump qw( dump );
@@ -23,134 +24,7 @@ my %plural_to_singular = (
     nesteds  => 'nested',    # for testing
 );
 
-__PACKAGE__->mk_accessors( '_fb' );
-
-=head2 new_from_node
-
-  my $new_object = $class->new_from_node( $node );
-
-Create a new object from the node given.
-
-=head2 copy
-
-  my $new_object = $self->copy(  );
-
-Returns a new object with the fb object set on it.
-
-=head2 create
-
-  my $new_object = $self->create( \%args );
-
-Create a new object. Takes the arguments and use them to create a new entry at
-the FreshBooks end. Once the object has been created a 'get' request is issued
-to fetch the data back from freshboks and to populate the object.
-
-=head2 update
-
-  my $object = $object->update();
-
-Update the object, saving any changes that have been made since the get.
-
-=head2 get
-
-  my $object = $self->get( \%args );
-
-Fetches the object using the FreshBooks API.
-
-=head2 list
-
-  my $iterator = $self->list( $args );
-
-Returns an iterator that represents the list fetched from the server.
-See L<Net::FreshBooks::API::Iterator> for details.
-
-=head2 delete
-
-  my $result = $self->delete();
-
-Delete the given object.
-
-
-=head1 INTERNAL METHODS
-
-=head2 send_request
-
-  my $response_data = $self->send_request( $args );
-
-Turn the args into xml, send it to FreshBooks, recieve back the XML and
-convert it back into a perl data structure.
-
-
-=head2 method_string
-
-  my $method_string = $self->method_string( 'action' );
-
-Returns a method string for this class - something like 'client.action'.
-
-
-=head2 api_name
-
-  my $api_name = $self->api_name(  );
-
-Returns the name that should be used in the API for this class.
-
-=head2 node_name
-
-  my $node_name = $self->node_name(  );
-
-Returns the name that should be used in the XML nodes for this class. Normally
-this is the same as the C<api_name> but can be overridden if needed.
-
-
-=head2 id_field
-
-  my $id_field = $self->id_field(  );
-
-Returns the id field for this class.
-
-=head2 field_names
-
-  my @names = $self->field_names();
-
-Return the names of all the fields.
-
-=head2 field_names_rw
-
-  my @names = $self->field_names_rw();
-
-Return the names of all the fields that are marked as read and write.
-
-=head2 parameters_to_request_xml
-
-  my $xml = $self->parameters_to_request_xml( \%parameters );
-
-Takes the parameters given and turns them into the xml that should be sent to
-the server. This has some smarts that works around the tedium of processing perl
-datastructures -> XML. In particular any key starting with an underscore becomes
-an attribute. Any key pointing to an array is wrapped so that it appears
-correctly in the XML.
-
-=head2 construct_element( $element, $hashref )
-
-Requires an XML::LibXML::Element object, followed by a HASHREF of attributes,
-text nodes, nested values or child elements or some combination thereof.
-
-=head2 response_xml_to_node
-
-  my $params = $self->response_xml_to_node( $xml );
-
-Take XML from FB and turn it into a datastructure that is easier to work with.
-
-
-=head2 send_xml_to_freshbooks
-
-  my $returned_xml = $self->send_xml_to_freshbooks( $xml_to_send );
-
-Sends the xml to the FreshBooks API and returns the XML content returned. This
-is the lowest part and is encapsulated here so that it can be easily overridden
-for testing.
-
-=cut
+has '_fb' => ( is => 'rw' );
 
 sub new_from_node {
     my $class = shift;
@@ -478,11 +352,10 @@ sub send_xml_to_freshbooks {
     my $response    = undef;
 
     if ( $fb->_oauth_ok ) {
-        $fb->_log( "using OAuth" );
-        my %params = ( );
-        $response
-            = $fb->oauth->make_restricted_request( $fb->service_url, 'POST',
-            %params, $xml_to_send );
+        $fb->_log( debug => "using OAuth" );
+        $fb->_log( debug => "sending xml: " . $xml_to_send );
+        my %params = ();
+        $response = $self->restricted_request( $xml_to_send );
     }
     else {
         my $request = HTTP::Request->new(
@@ -498,6 +371,56 @@ sub send_xml_to_freshbooks {
         unless $response->is_success;
 
     return $response->content;
+}
+
+sub restricted_request {
+
+    my $self  = shift;
+    my $oauth = $self->_fb->oauth;
+    return $oauth->_error( "This restricted request is not authorized" )
+        unless $oauth->authorized;
+
+    my $url     = shift;
+    my $method  = uc( shift );
+    my $content = shift;
+
+    my %request = (
+        consumer_key     => $oauth->consumer_key,
+        consumer_secret  => $oauth->consumer_secret,
+        request_url      => $self->_fb->service_url,
+        request_method   => 'POST',
+        signature_method => $oauth->signature_method,
+        protocol_version => 'Net::OAuth::PROTOCOL_VERSION_1_0A',
+        timestamp        => time,
+        nonce            => $oauth->_nonce,
+        token            => $oauth->access_token,
+        token_secret     => $oauth->access_token_secret,
+    );
+
+    my $request = Net::OAuth::ProtectedResourceRequest->new( %request );
+
+    $request->sign;
+    return $oauth->_error(
+        "Couldn't verify request! Check OAuth parameters." )
+        unless $request->verify;
+
+    my $params = $request->to_hash;
+    my $req    = HTTP::Request->new(
+        'POST' => $self->_fb->service_url,
+        undef, $content
+    );
+    my $response = $oauth->{browser}->request( $req );
+    print "x"x20 . dump( $oauth->{browser}) . "\n\n";
+    #print dump( $request );
+    print dump($response);
+    return $oauth->_error( "$method on "
+            . $request->normalized_request_url
+            . " failed: "
+            . $response->status_line . " - "
+            . $response->content )
+        unless ( $response->is_success );
+
+    return $response;
 }
 
 # When FreshBooks returns info on recurring items, it does not return the same
@@ -521,4 +444,133 @@ sub _frequency_cleanup {
 
 }
 
+__PACKAGE__->meta->make_immutable( inline_constructor => 1 );
+
 1;
+
+=head2 new_from_node
+
+  my $new_object = $class->new_from_node( $node );
+
+Create a new object from the node given.
+
+=head2 copy
+
+  my $new_object = $self->copy(  );
+
+Returns a new object with the fb object set on it.
+
+=head2 create
+
+  my $new_object = $self->create( \%args );
+
+Create a new object. Takes the arguments and use them to create a new entry at
+the FreshBooks end. Once the object has been created a 'get' request is issued
+to fetch the data back from freshboks and to populate the object.
+
+=head2 update
+
+  my $object = $object->update();
+
+Update the object, saving any changes that have been made since the get.
+
+=head2 get
+
+  my $object = $self->get( \%args );
+
+Fetches the object using the FreshBooks API.
+
+=head2 list
+
+  my $iterator = $self->list( $args );
+
+Returns an iterator that represents the list fetched from the server.
+See L<Net::FreshBooks::API::Iterator> for details.
+
+=head2 delete
+
+  my $result = $self->delete();
+
+Delete the given object.
+
+
+=head1 INTERNAL METHODS
+
+=head2 send_request
+
+  my $response_data = $self->send_request( $args );
+
+Turn the args into xml, send it to FreshBooks, recieve back the XML and
+convert it back into a perl data structure.
+
+
+=head2 method_string
+
+  my $method_string = $self->method_string( 'action' );
+
+Returns a method string for this class - something like 'client.action'.
+
+
+=head2 api_name
+
+  my $api_name = $self->api_name(  );
+
+Returns the name that should be used in the API for this class.
+
+=head2 node_name
+
+  my $node_name = $self->node_name(  );
+
+Returns the name that should be used in the XML nodes for this class. Normally
+this is the same as the C<api_name> but can be overridden if needed.
+
+
+=head2 id_field
+
+  my $id_field = $self->id_field(  );
+
+Returns the id field for this class.
+
+=head2 field_names
+
+  my @names = $self->field_names();
+
+Return the names of all the fields.
+
+=head2 field_names_rw
+
+  my @names = $self->field_names_rw();
+
+Return the names of all the fields that are marked as read and write.
+
+=head2 parameters_to_request_xml
+
+  my $xml = $self->parameters_to_request_xml( \%parameters );
+
+Takes the parameters given and turns them into the xml that should be sent to
+the server. This has some smarts that works around the tedium of processing perl
+datastructures -> XML. In particular any key starting with an underscore becomes
+an attribute. Any key pointing to an array is wrapped so that it appears
+correctly in the XML.
+
+=head2 construct_element( $element, $hashref )
+
+Requires an XML::LibXML::Element object, followed by a HASHREF of attributes,
+text nodes, nested values or child elements or some combination thereof.
+
+=head2 response_xml_to_node
+
+  my $params = $self->response_xml_to_node( $xml );
+
+Take XML from FB and turn it into a datastructure that is easier to work with.
+
+
+=head2 send_xml_to_freshbooks
+
+  my $returned_xml = $self->send_xml_to_freshbooks( $xml_to_send );
+
+Sends the xml to the FreshBooks API and returns the XML content returned. This
+is the lowest part and is encapsulated here so that it can be easily overridden
+for testing.
+
+=cut

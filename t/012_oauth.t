@@ -44,6 +44,14 @@ SKIP: {
     ok( $api->oauth->authorized, "is now authorized" );
     ok( $api->_oauth_authorized, "is now authorized" );
     
-    ok( $api->ping );
+    my $client = $api->client;
+    isa_ok( $client, 'Net::FreshBooks::API::Client');
+    my $iterator = $client->list;
+    ok( $iterator, "got an iterator");
+    while ( my $cl = $iterator->next ) {
+        diag( $cl->first_name );
+    }
+    
+    #ok( $api->ping );
     
 }
