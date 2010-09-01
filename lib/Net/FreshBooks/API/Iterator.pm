@@ -4,20 +4,17 @@ use warnings;
 package Net::FreshBooks::API::Iterator;
 
 use Moose;
-extends 'Class::Accessor::Fast';
 
 use Data::Dump qw( dump );
 use Lingua::EN::Inflect qw( PL );
 use XML::LibXML ':libxml';
 
-__PACKAGE__->mk_accessors(
-    'parent_object',    # The object we are iterating for
-    'args',             # args used in the search
-    'total',            # The total number of results
-    'pages',            # the number of result pages
-    'item_nodes',       # a list of all items
-    'current_index',    # which item we are currently on
-);
+has 'parent_object' => ( is => 'rw' );    # The object we are iterating for
+has 'args'          => ( is => 'rw' );    # args used in the search
+has 'total'         => ( is => 'rw' );    # The total number of results
+has 'pages'         => ( is => 'rw' );    # the number of result pages
+has 'item_nodes'    => ( is => 'rw' );    # a list of all items
+has 'current_index' => ( is => 'rw' );    # which item we are currently on
 
 =head2 new
 
@@ -56,7 +53,7 @@ sub new {
     my $self = bless shift, $class;
 
     my $request_args = {
-        _method => $self->parent_object->method_string('list'),
+        _method => $self->parent_object->method_string( 'list' ),
 
         # defaults
         page     => 1,
@@ -67,11 +64,11 @@ sub new {
 
     my $list_name = PL( $self->parent_object->api_name );
 
-    my $response = $self->parent_object->send_request($request_args);
-    my ($list) = $response->findnodes("//$list_name");
+    my $response = $self->parent_object->send_request( $request_args );
+    my ( $list ) = $response->findnodes( "//$list_name" );
 
-    $self->pages( $list->getAttribute('pages') );
-    $self->total( $list->getAttribute('total') );
+    $self->pages( $list->getAttribute( 'pages' ) );
+    $self->total( $list->getAttribute( 'total' ) );
 
     my $parser = XML::LibXML->new();
 
@@ -85,14 +82,14 @@ sub new {
     return $self;
 }
 
-sub next {    ## no critic
+sub next {                                               ## no critic
     ## use critic
     my $self = shift;
 
     # work out what the current index should be
     my $current_index = $self->current_index;
-    $current_index = defined($current_index) ? $current_index + 1 : 0;
-    $self->current_index($current_index);
+    $current_index = defined( $current_index ) ? $current_index + 1 : 0;
+    $self->current_index( $current_index );
 
     # check that there is a next item
     # FIXME - add fetching the next page if needed here

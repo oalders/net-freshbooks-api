@@ -8,12 +8,12 @@ extends 'Net::FreshBooks::API::Invoice';
 
 use Net::FreshBooks::API::InvoiceLine;
 
-my $fields = fields();
+my $fields = _fields();
 foreach my $method ( keys %{$fields} ) {
     has $method => (  is => $fields->{$method}->{mutable} ? 'rw' : 'ro' );
 }
 
-sub fields {
+sub _fields {
 
     return {
         recurring_id    => { mutable => 0, },
@@ -106,7 +106,40 @@ Net::FreshBooks::API::Recurring - FreshBooks Recurring Items
 
     See also L<Net::FreshBooks::API::Base> for other available methods, such
     as create, update, get, list and delete.
+    
+=head2 recurring->create
 
+    my $recurring = $fb->recurring->create({...});
+
+=head2 recurring->update
+
+Please see client->update for an example of how to use this method.
+
+=head2 recurring->get
+
+    my $item = $recurring->get({ recurring_id => $recurring_id });
+
+=head2 recurring->delete
+
+    my $item = $recurring->get({ recurring_id => $recurring_id });
+    $item->delete;
+
+=head2 recurring->list
+
+Returns a L<Net::FreshBooks::API::Iterator> object.
+
+    my $recurrings = $fb->recurring->list;
+    while ( my $recurring = $recurrings->list ) {
+        print $recurring->recurring_id, "\n";
+    }
+
+=head2 recurring->lines
+
+Returns an ARRAYREF of Net::FreshBooks::API::InvoiceLine objects
+
+    foreach my $line ( @{ $recurring->lines } ) {
+        print $line->amount, "\n";
+    }
 
 =head1 AUTHOR
 

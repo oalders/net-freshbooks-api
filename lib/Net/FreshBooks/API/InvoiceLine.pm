@@ -5,12 +5,12 @@ package Net::FreshBooks::API::InvoiceLine;
 use Moose;
 extends 'Net::FreshBooks::API::Base';
 
-my $fields = fields();
+my $fields = _fields();
 foreach my $method ( keys %{$fields} ) {
     has $method => (  is => $fields->{$method}->{mutable} ? 'rw' : 'ro' );
 }
 
-sub fields {
+sub _fields {
     return {
         amount       => { mutable => 0, },
         name         => { mutable => 1, },

@@ -6,12 +6,12 @@ package Net::FreshBooks::API::Links;
 use Moose;
 extends 'Net::FreshBooks::API::Base';
 
-my $fields = fields();
+my $fields = _fields();
 foreach my $method ( keys %{$fields} ) {
     has $method => (  is => $fields->{$method}->{mutable} ? 'rw' : 'ro' );
 }
 
-sub fields {
+sub _fields {
     return {
         client_view => { mutable => 0, },
         view        => { mutable => 0, },

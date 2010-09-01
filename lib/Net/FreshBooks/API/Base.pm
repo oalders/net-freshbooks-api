@@ -115,7 +115,7 @@ sub _fill_in_from_node {
     delete $self->{$_}    #
         for grep { !m/^_/x } keys %$self;
 
-    my $fields_config = $self->fields;
+    my $fields_config = $self->_fields;
 
     # copy across the new values provided
     foreach my $key ( grep { !m/^_/x } keys %$fields_config ) {
@@ -246,13 +246,13 @@ sub id_field {
 
 sub field_names {
     my $self  = shift;
-    my @names = sort keys %{ $self->fields };
+    my @names = sort keys %{ $self->_fields };
     return @names;
 }
 
 sub field_names_rw {
     my $self   = shift;
-    my $fields = $self->fields;
+    my $fields = $self->_fields;
 
     my @names = sort
         grep { $fields->{$_}{mutable} }
