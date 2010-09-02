@@ -2,8 +2,8 @@ package OAuthDemo;
 
 =head1 SYNOPSIS
 
-This code is, to a great degree, shamelessly lifted from
-example/twitter in the Net::OAuth::Simple library.
+This code is, to a great degree, shamelessly lifted from example/twitter in
+the Net::OAuth::Simple library.
 
 =cut
 

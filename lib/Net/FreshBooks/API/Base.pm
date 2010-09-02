@@ -24,6 +24,7 @@ my %plural_to_singular = (
 );
 
 has '_fb' => ( is => 'rw' );
+has '_sent_xml' => ( is => 'rw' );
 
 sub new_from_node {
     my $class = shift;
@@ -344,20 +345,18 @@ sub response_xml_to_node {
 }
 
 sub send_xml_to_freshbooks {
+    
     my $self        = shift;
     my $xml_to_send = shift;
     my $fb          = $self->_fb;
     my $ua          = $fb->ua;
     my $response    = undef;
+    $self->_sent_xml( $xml_to_send );
 
-    if ( $fb->_oauth_ok ) {
-
-        #$fb->_log( debug => "using OAuth" );
-        #$fb->_log( debug => "sending xml: " . $xml_to_send );
-        $response = $fb->oauth->restricted_request( $fb->service_url,
-            $xml_to_send );
-    }
-    else {
+    if ( $fb->auth_token ) {
+        
+        $fb->_log( debug => "Not using OAuth" );
+        
         my $request = HTTP::Request->new(
             'POST',              # method
             $fb->service_url,    # url
@@ -365,11 +364,21 @@ sub send_xml_to_freshbooks {
             $xml_to_send         # content
         );
         $response = $ua->request( $request );
+    
+    }
+    else {
+    
+        $fb->_log( debug => "using OAuth" );
+        
+        $response = $fb->oauth->restricted_request( $fb->service_url,
+            $xml_to_send );        
+    
     }
 
-    croak "FreshBooks request failed: " . $response->status_line
-        unless $response->is_success;
-
+    if ( !$response->is_success ) {
+        croak "FreshBooks request failed: " . $response->status_line;   
+    }
+    
     return $response->content;
 }
 

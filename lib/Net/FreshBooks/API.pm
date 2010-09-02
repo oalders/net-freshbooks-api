@@ -9,6 +9,7 @@ use Data::Dump qw( dump );
 #use Devel::SimpleTrace;
 use Net::FreshBooks::API::Client;
 use Net::FreshBooks::API::Invoice;
+use Net::FreshBooks::API::OAuth;
 use Net::FreshBooks::API::Payment;
 use Net::FreshBooks::API::Recurring;
 use Path::Class;
@@ -21,7 +22,6 @@ has 'auth_realm'         => ( is => 'rw', default => 'FreshBooks' );
 has 'oauth'              => ( is => 'rw', lazy_build => 1 );
 has 'ua'                 => ( is => 'rw', lazy_build => 1 );
 has 'verbose'            => ( is => 'rw', default => 0 );
-has '_oauth_ok'          => ( is => 'rw', default => 0 );
 
 # oauth methods
 has 'access_token'        => ( is => 'rw' );
@@ -53,10 +53,7 @@ sub ping {
 
 sub service_url {
     my $self = shift;
-    my $account_name = $self->account_name;
-    if ( $self->_oauth_authorized ) {
-        $account_name = $self->consumer_key;
-    }
+    my $account_name = $self->account_name || $self->consumer_key;
 
     my $uri
         = URI->new( 'https://'
@@ -164,17 +161,10 @@ sub _build_oauth {
 
     my $oauth = Net::FreshBooks::API::OAuth->new( %tokens );
 
-    $self->_oauth_ok( 1 );
     return $oauth;
 
 }
 
-sub _oauth_authorized {
-
-    my $self = shift;
-    return $self->_oauth_ok && $self->oauth->authorized;
-
-}
 __PACKAGE__->meta->make_immutable();
 
 1;
@@ -185,11 +175,20 @@ __PACKAGE__->meta->make_immutable();
 
     use Net::FreshBooks::API;
 
-    # auth_token and account_name come from FreshBooks
+    # Authenticate with OAuth (recommended)
+    my $fb = Net::FreshBooks::API->new(
+        {   consumer_key        => $consumer_key,       # same as account_name
+            consumer_key_secret => $consumer_key_secret,
+            access_token        => $access_token,
+            access_token_secret => $access_token_secret,
+        }
+    );
+
+
+    # Or, use auth_token and account_name supplied by FreshBooks
     my $fb = Net::FreshBooks::API->new(
         {   auth_token   => $auth_token,
             account_name => $account_name,
-            verbose      => 0,               # turn on for XML debugging etc
         }
     );
     
@@ -270,10 +269,8 @@ __PACKAGE__->meta->make_immutable();
     $recurring_item->po_number( 999 );
     $recurring_item->update;
 
-See also L <Net::FreshBooks::API::Base>
-    for other available methods, such as create, update, get, list
-    and delete
-    .
+See also L<Net::FreshBooks::API::Base> for other available methods, such as
+create, update, get, list and delete.
 
 =head1 DESCRIPTION
 
@@ -282,6 +279,18 @@ manage invoices. This module is an OO abstraction of their API that lets you
 work with Clients, Invoices etc as if they were standard Perl objects.
 
 Repository: L<http://github.com/oalders/net-freshbooks-api/tree/master>
+
+=head2 OAUTH
+
+OAuth is the recommended method of authentication, but it can take a few days
+for FreshBooks to approve your OAuth application. In the meantime, you can get
+started right away by using an auth_token.
+
+Once your application has been approved, your consumer_key will be your
+FreshBooks account name and your consumer_key_secret will be provided to you
+by FreshBooks in your account. If you need to generate an access_token and
+access_token_secret, you can so so by running the oauth.pl script in the
+/examples directory which is included with this distribution.
 
 =head1 METHODS
 
@@ -325,6 +334,11 @@ valid.
   my $url = $fb->service_url(  );
 
 Returns a L<URI> object that represents the service URL.
+
+=head2 verbose
+
+Setting verbose to a true value will allow you to inspect the XML which is
+being sent to FreshBooks
 
 =head2 ua
 
