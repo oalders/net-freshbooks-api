@@ -201,9 +201,10 @@ sub _make_request {
 =head2 DESCRIPTION
 
 This package subclasses Net::OAuth::Simple, which is itself a wrapper around
-Net::OAuth  You shouldn't need to deal with this class directly, but it's
-available to you if you need it.  Any of the methods which Net::OAuth::Simple
-uses are available to you.  This subclass only overrides the new() method.
+L<Net::OAuth> You shouldn't need to deal with this class directly, but it's
+available to you if you need it. Any of the methods which
+L<Net::OAuth::Simple> uses are available to you. This subclass only overrides
+the new() method.
     
 =head2 SYNOPSIS
 

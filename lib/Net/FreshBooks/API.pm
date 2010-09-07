@@ -178,7 +178,7 @@ __PACKAGE__->meta->make_immutable();
     # Authenticate with OAuth (recommended)
     my $fb = Net::FreshBooks::API->new(
         {   consumer_key        => $consumer_key,       # same as account_name
-            consumer_key_secret => $consumer_key_secret,
+            consumer_secret     => $consumer_secret,
             access_token        => $access_token,
             access_token_secret => $access_token_secret,
         }
@@ -299,8 +299,10 @@ access_token_secret, you can so so by running the oauth.pl script in the
 Create a new API object.
 
     my $fb = Net::FreshBooks::API->new(
-        {   account_name => 'account_name',
-            auth_token   => '123...def',
+        {   consumer_key        => $consumer_key,       # same as account_name
+            consumer_secret     => $consumer_secret,
+            access_token        => $access_token,
+            access_token_secret => $access_token_secret,
         }
     );
 
@@ -359,6 +361,36 @@ does not end with 'test'.
 As a general rule it is best to put this at the B<start> of your test scripts
 rather than at the end. This will let you inspect your account at the end of
 the test script to see what is left behind.
+
+=head1 OAUTH METHODS
+
+=head2 consumer_key( $account_name )
+
+Getter/setter method. Can also be passed to new(). Required when constructing
+a new L<Net::FreshBooks::API::OAuth> object.
+
+=head2 consumer_secret( $secret )
+
+Getter/setter method. Can also be passed to new(). Required when constructing
+a new L<Net::FreshBooks::API::OAuth> object.  The consumer_secret is
+provided to you by FreshBooks.  You'll need to log in to your account to
+access it.
+
+=head2 access_token( $access_token )
+
+Getter/setter method.  Can also be passed to new().  Optional for construction
+of a new L<Net::FreshBooks::API::OAuth> object.
+
+=head2 access_token_secret( $access_token_secret )
+
+Getter/setter method.  Can also be passed to new().  Optional for construction
+of a new L<Net::FreshBooks::API::OAuth> object.
+
+=head2 oauth
+
+Returns a L<Net::FreshBooks::API::OAuth> object. This is a subclass of
+L<Net::OAuth::Simple> See L<Net::FreshBooks::API::OAuth> as well as the
+scripts in the /examples folder of this distribution for use cases.
 
 =head1 WARNING
 
