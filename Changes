@@ -1,7 +1,14 @@
 Revision history for Perl module Net::FreshBooks::API
 
-0.11 2010-08-??
+0.12 2010-09-07
+    - Fixed some documentation errors
+    - Documented OAuth-specific methods
+    - Overriding more of Net::OAuth::Simple in order to get examples working
+
+0.11 2010-09-07
     - Move distro management to Dist::Zilla
+    - Added OAuth support
+    - Moved a lot of the documentation from API.pm to sub-modules
 
 0.10 2009-11-23
     - Iterator's next() method now returns cloned objects
