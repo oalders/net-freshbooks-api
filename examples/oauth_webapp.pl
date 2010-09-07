@@ -1,6 +1,8 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
+
 #
-# Shamelessly pilfered from Net::FreshBooks's /example/oauth_webapp.pl
+# Shamelessly pilfered from Net::Twitter's /example/oauth_webapp.pl
+#
 
 package MyWebApp;
 use warnings;

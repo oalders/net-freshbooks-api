@@ -98,6 +98,68 @@ sub restricted_request {
     return $response;
 }
 
+##############################################################################
+# the following methods can be deleted once a patched version of
+# Net::OAuth::Simple has been released
+
+sub request_access_token {
+    my $self   = shift;
+    my %params = @_;
+    my $url    = $self->access_token_url;
+
+    $params{token}        = $self->request_token        unless defined $params{token};
+    $params{token_secret} = $self->request_token_secret unless defined $params{token_secret};
+
+    if ($self->oauth_1_0a) {
+        $params{verifier} = $self->verifier                             unless defined $params{verifier};
+        return $self->_error("You must pass a verified parameter when using OAuth v1.0a") unless defined $params{verifier};
+
+    }
+
+
+    my $access_token_response = $self->_make_request(
+        'Net::OAuth::AccessTokenRequest',
+        $url, 'POST',
+        %params,
+    );
+
+    return $self->_decode_tokens($url, $access_token_response);
+}
+
+sub request_request_token {
+    my $self   = shift;
+    my %params = @_;
+    my $url    = $self->request_token_url;
+
+    if ($self->oauth_1_0a) {
+        $params{callback} = $self->callback                             unless defined $params{callback};
+        return $self->_error("You must pass a callback parameter when using OAuth v1.0a") unless defined $params{callback};
+    }
+
+    my $request_token_response = $self->_make_request(
+        'Net::OAuth::RequestTokenRequest',
+        $url, 'POST',
+        %params);
+
+    return $self->_error("GET for $url failed: ".$request_token_response->status_line)
+      unless ( $request_token_response->is_success );
+
+    # Cast response into CGI query for EZ parameter decoding
+    my $request_token_response_query =
+      new CGI( $request_token_response->content );
+
+    # Split out token and secret parameters from the request token response
+    $self->request_token($request_token_response_query->param('oauth_token'));
+    $self->request_token_secret($request_token_response_query->param('oauth_token_secret'));
+    $self->callback_confirmed($request_token_response_query->param('oauth_callback_confirmed'));
+
+    return $self->_error("Response does not confirm to OAuth1.0a. oauth_callback_confirmed not received")
+     if $self->oauth_1_0a && !$self->callback_confirmed;
+
+}
+
+##############################################################################
+
 =head2 DESCRIPTION
 
 This package subclasses Net::OAuth::Simple, which is itself a wrapper around
