@@ -158,6 +158,44 @@ sub request_request_token {
 
 }
 
+
+sub _make_request {
+    my $self    = shift;
+    my $class   = shift;
+    my $url     = shift;
+    my $method  = uc(shift);
+    my @extra   = @_;
+
+    my $uri   = URI->new($url);
+    my %query = $uri->query_form;
+    $uri->query_form({});
+
+    my $request = $class->new(
+        consumer_key     => $self->consumer_key,
+        consumer_secret  => $self->consumer_secret,
+        request_url      => $uri,
+        request_method   => $method,
+        signature_method => $self->signature_method,
+        protocol_version => $self->oauth_1_0a ? Net::OAuth::PROTOCOL_VERSION_1_0A : Net::OAuth::PROTOCOL_VERSION_1_0,
+        timestamp        => time,
+        nonce            => $self->_nonce,
+        extra_params     => \%query,
+        @extra,
+    );
+    $request->sign;
+    return $self->_error("Couldn't verify request! Check OAuth parameters.")
+      unless $request->verify;
+
+    my $params  = $request->to_hash;
+    $uri->query_form(%$params);
+    my $req      = HTTP::Request->new( $method => "$uri");
+    my $response = $self->{browser}->request($req);
+    return $self->_error("$method on ".$request->normalized_request_url." failed: ".$response->status_line." - ".$response->content)
+      unless ( $response->is_success );
+
+    return $response;
+}
+
 ##############################################################################
 
 =head2 DESCRIPTION
