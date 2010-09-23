@@ -160,20 +160,10 @@ Please see client->update for an example of how to use this method.
 
 =head2 links
 
-Returns an object with three methods.  Each method returns a FreshBooks
-URL.
-
-=head4 invoice->links->client_view
+Returns a L<Net::FreshBooks::API::Links> object, which returns FreshBooks
+URLs.
 
     print "send this url to client: " . $invoice->links->client_view;
-
-=head4 invoice->links->view
-
-    print "view invoice in my account: " . $invoice->links->view;
-
-=head4 invoice->links->edit
-
-    print "edit invoice in my account: " . $invoice->links->edit;
 
 =head2 list
 

@@ -110,6 +110,13 @@ the update() method, which is described below.
     my $client = $fb->client->get({ client_id => $client_id });
     $client->delete;
 
+=head2 links
+
+Returns a L<Net::FreshBooks::API::Links> object, which returns FreshBooks
+URLs.
+
+    print "Client view: " . $fb->client->links->client_view;
+
 =head2 list
 
 Returns n L<Net::FreshBooks::API::Iterator> object. Currently,
