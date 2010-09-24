@@ -12,6 +12,7 @@ foreach my $method ( keys %{$fields} ) {
 
 sub _fields {
     return {
+        line_id      => { mutable => 0, },
         amount       => { mutable => 0, },
         name         => { mutable => 1, },
         description  => { mutable => 1, },
@@ -21,6 +22,7 @@ sub _fields {
         tax2_name    => { mutable => 1, },
         tax1_percent => { mutable => 1, },
         tax2_percent => { mutable => 1, },
+        type         => { mutable => 1, },
     };
 }
 

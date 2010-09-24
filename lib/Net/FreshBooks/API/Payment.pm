@@ -19,12 +19,15 @@ sub _fields {
         client_id  => { mutable => 1, },
         invoice_id => { mutable => 1, },
 
-        date   => { mutable => 1, },
-        amount => { mutable => 1, },
-        type   => { mutable => 1, },
-        notes  => { mutable => 1, },
+        date          => { mutable => 1, },
+        amount        => { mutable => 1, },
+        currency_code => { mutable => 1, },
+        type          => { mutable => 1, },
+        notes         => { mutable => 1, },
+        updated       => { mutable => 0, },
     };
 }
+
 
 __PACKAGE__->meta->make_immutable();
 

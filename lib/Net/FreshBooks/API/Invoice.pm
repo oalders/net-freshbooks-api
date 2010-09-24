@@ -28,7 +28,11 @@ sub _fields {
         discount           => { mutable => 1, },
         notes              => { mutable => 1, },
         terms              => { mutable => 1, },
+        currency_code      => { mutable => 1, },
+        folder             => { mutable => 1, },
+        language           => { mutable => 1, },
         return_uri         => { mutable => 1, },
+        updated            => { mutable => 0, },
 
         links => {
             mutable      => 0,
@@ -47,6 +51,8 @@ sub _fields {
         p_state      => { mutable => 1, },
         p_country    => { mutable => 1, },
         p_code       => { mutable => 1, },
+        vat_name     => { mutable => 1, },
+        vat_number   => { mutable => 1, },
 
         lines => {
             mutable      => 1,

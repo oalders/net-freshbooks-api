@@ -16,6 +16,7 @@ sub _fields {
         client_view => { mutable => 0, },
         view        => { mutable => 0, },
         edit        => { mutable => 0, },
+        statement   => { mutable => 0, },
     };
 }
 

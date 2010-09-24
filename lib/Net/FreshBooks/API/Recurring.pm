@@ -30,9 +30,13 @@ sub _fields {
         p_state         => { mutable => 1, },
         p_country       => { mutable => 1, },
         p_code          => { mutable => 1, },
+        vat_name        => { mutable => 1, },
+        vat_number      => { mutable => 1, },
         po_number       => { mutable => 1, },
         status          => { mutable => 0, },
         amount          => { mutable => 0, },
+        currency_code   => { mutable => 1, },
+        language        => { mutable => 1, },
         date            => { mutable => 1, },
         notes           => { mutable => 1, },
         terms           => { mutable => 1, },
@@ -40,7 +44,9 @@ sub _fields {
         return_uri      => { mutable => 1, },
         send_snail_mail => { mutable => 1, },
         send_email      => { mutable => 1, },
-        autobill        => { mutable => 1, },
+        
+        # autobill will need to be an object similar to InvoiceLine
+        #autobill        => { ... },
         lines           => {
             mutable      => 1,
             made_of      => 'Net::FreshBooks::API::InvoiceLine',

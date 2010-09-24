@@ -282,8 +282,13 @@ sub construct_element {
     my $hashref = shift;
 
     foreach my $key ( sort keys %$hashref ) {
-
         my $val = $hashref->{$key};
+        
+        # avoid "Unknown currency" API error
+        next if $key eq 'currency_code' && !$val;
+        
+        # line_id is returned, but not sent
+        next if $key eq 'line_id';
 
         # keys starting with an underscore are attributes
         if ( my ( $attr_key ) = $key =~ m{ \A _ (.*) \z }x ) {
