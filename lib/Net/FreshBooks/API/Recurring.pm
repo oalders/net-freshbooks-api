@@ -40,6 +40,7 @@ sub _fields {
         return_uri      => { mutable => 1, },
         send_snail_mail => { mutable => 1, },
         send_email      => { mutable => 1, },
+        autobill        => { mutable => 1, },
         lines           => {
             mutable      => 1,
             made_of      => 'Net::FreshBooks::API::InvoiceLine',
