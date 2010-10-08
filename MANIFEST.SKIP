@@ -1,2 +1,4 @@
 README.pod
 scripts
+\.kpf$
+MANIFEST.SKIP

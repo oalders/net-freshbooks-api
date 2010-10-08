@@ -1,5 +1,15 @@
 Revision history for Perl module Net::FreshBooks::API
 
+0.14 2010-10-07
+    - Fixed missing package versions which broke distro 0.13
+
+0.13 2010-10-07
+    - Fixed a bug where OAuth URL would not always use correct account_name
+      when being constructed
+    - Added many new API params
+    - Expanded documentation and shifted much off of API.pm and to the
+      subclasses
+
 0.12 2010-09-07
     - Fixed some documentation errors
     - Documented OAuth-specific methods
@@ -13,7 +23,7 @@ Revision history for Perl module Net::FreshBooks::API
 0.10 2009-11-23
     - Iterator's next() method now returns cloned objects
     - Added documentation for Invoice links() and list() functionality
-    
+
 0.09 2009-11-19
     - Added amount field to recurring items
     - Added documentation for the lines() method
