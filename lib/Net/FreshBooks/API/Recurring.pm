@@ -63,12 +63,7 @@ Net::FreshBooks::API::Recurring - FreshBooks Recurring Items
     # You will not access this module directly, but rather fetch an object via
     # its parent class, Net::FreshBooks::API
 
-    # auth_token and account_name come from FreshBooks
-    my $fb = Net::FreshBooks::API->new(
-        {   auth_token   => $auth_token,
-            account_name => $account_name,
-        }
-    );
+    my $fb = Net::FreshBooks::API->new({ ... });
 
     # create a new client
     my $client = $fb->client->create(
@@ -106,7 +101,7 @@ Net::FreshBooks::API::Recurring - FreshBooks Recurring Items
 
     See also L<Net::FreshBooks::API::Base> for other available methods, such
     as create, update, get, list and delete.
-    
+
 =head2 recurring->create
 
     my $recurring = $fb->recurring->create({...});
