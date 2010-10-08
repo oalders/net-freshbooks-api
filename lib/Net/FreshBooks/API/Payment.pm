@@ -19,12 +19,15 @@ sub _fields {
         client_id  => { mutable => 1, },
         invoice_id => { mutable => 1, },
 
-        date   => { mutable => 1, },
-        amount => { mutable => 1, },
-        type   => { mutable => 1, },
-        notes  => { mutable => 1, },
+        date          => { mutable => 1, },
+        amount        => { mutable => 1, },
+        currency_code => { mutable => 1, },
+        type          => { mutable => 1, },
+        notes         => { mutable => 1, },
+        updated       => { mutable => 0, },
     };
 }
+
 
 __PACKAGE__->meta->make_immutable();
 
@@ -39,27 +42,27 @@ L<Net::FreshBooks::API> will construct this object for you.
 
     my $fb = Net::FreshBooks::API->new({ ... });
     my $payment = $fb->payment;
-    
-=head2 payment->create
+
+=head2 create
 
 Create a new payment in the FreshBooks system
 
     my $payment = $fb->payment->create({...});
 
-=head2 payment->update
+=head2 update
 
 Please see client->update for an example of how to use this method.
 
-=head2 payment->get
+=head2 get
 
     my $payment = $fb->payment->get({ payment_id => $payment_id });
 
-=head2 payment->delete
+=head2 delete
 
     my $payment = $fb->payment->get({ payment_id => $payment_id });
     $payment->delete;
 
-=head2 payment->list
+=head2 list
 
 Returns a L<Net::FreshBooks::API::Iterator> object.
 

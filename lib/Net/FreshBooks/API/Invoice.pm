@@ -28,7 +28,11 @@ sub _fields {
         discount           => { mutable => 1, },
         notes              => { mutable => 1, },
         terms              => { mutable => 1, },
+        currency_code      => { mutable => 1, },
+        folder             => { mutable => 1, },
+        language           => { mutable => 1, },
         return_uri         => { mutable => 1, },
+        updated            => { mutable => 0, },
 
         links => {
             mutable      => 0,
@@ -47,6 +51,8 @@ sub _fields {
         p_state      => { mutable => 1, },
         p_country    => { mutable => 1, },
         p_code       => { mutable => 1, },
+        vat_name     => { mutable => 1, },
+        vat_number   => { mutable => 1, },
 
         lines => {
             mutable      => 1,
@@ -108,14 +114,14 @@ L<Net::FreshBooks::API> will construct this object for you.
 
     my $fb = Net::FreshBooks::API->new({ ... });
     my $invoice = $fb->invoice;
-    
-=head2 invoice->create
+
+=head2 create
 
 Create an invoice in the FreshBooks system.
 
 my $invoice = $fb->invoice->create({...});
 
-=head2 invoice->add_line
+=head2 add_line
 
 Create a new L<Net::FreshBooks::API::InvoiceLine> object and add it to the end
 of the list of lines
@@ -133,49 +139,39 @@ of the list of lines
     );
 
 
-=head2 invoice->send_by_email
+=head2 send_by_email
 
 Send the invoice by email.
 
   my $result = $invoice->send_by_email();
 
-=head2 invoice->send_by_snail_mail
+=head2 send_by_snail_mail
 
 Send the invoice by snail mail.
 
   my $result = $invoice->send_by_snail_mail();
 
-=head2 invoice->update
+=head2 update
 
 Please see client->update for an example of how to use this method.
 
-=head2 invoice->get
+=head2 get
 
     my $invoice = $fb->invoice->get({ invoice_id => $invoice_id });
 
-=head2 invoice->delete
+=head2 delete
 
     my $invoice = $fb->invoice->get({ invoice_id => $invoice_id });
     $invoice->delete;
 
-=head2 invoice->links
+=head2 links
 
-Returns an object with three methods.  Each method returns a FreshBooks
-URL.
-
-=head4 invoice->links->client_view
+Returns a L<Net::FreshBooks::API::Links> object, which returns FreshBooks
+URLs.
 
     print "send this url to client: " . $invoice->links->client_view;
 
-=head4 invoice->links->view
-
-    print "view invoice in my account: " . $invoice->links->view;
-
-=head4 invoice->links->edit
-
-    print "edit invoice in my account: " . $invoice->links->edit;
-
-=head2 invoice->list
+=head2 list
 
 Returns a L<Net::FreshBooks::API::Iterator> object.
 
@@ -186,11 +182,10 @@ Returns a L<Net::FreshBooks::API::Iterator> object.
         print $invoice->invoice_id, "\n";
     }
 
-=head2 invoice->lines
+=head2 lines
 
 Returns an ARRAYREF of Net::FreshBooks::API::InvoiceLine objects
 
     foreach my $line ( @{ $invoice->lines } ) {
         print $line->amount, "\n";
     }
-

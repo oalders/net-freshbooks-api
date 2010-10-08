@@ -29,7 +29,11 @@ sub _fields {
         home_phone => { mutable => 1, },
         mobile     => { mutable => 1, },
         fax        => { mutable => 1, },
+        language   => { mutable => 1, },
+        currency_code => { mutable => 1, },
 
+        # credit is now made up of currency specific items, so this
+        # probably won't work
         credit => { mutable => 0, },
         notes  => { mutable => 1, },
 
@@ -52,6 +56,12 @@ sub _fields {
             made_of      => 'Net::FreshBooks::API::Links',
             presented_as => 'single',
         },
+        
+        vat_name   => { mutable => 1, },
+        vat_number => { mutable => 1, },
+        
+        # folder is listed in the API docs, but throws an error anyway
+        #folder     => { mutable => 1, },
     };
 }
 
@@ -109,6 +119,13 @@ the update() method, which is described below.
     # fetch a client and then delete it
     my $client = $fb->client->get({ client_id => $client_id });
     $client->delete;
+
+=head2 links
+
+Returns a L<Net::FreshBooks::API::Links> object, which returns FreshBooks
+URLs.
+
+    print "Client view: " . $fb->client->links->client_view;
 
 =head2 list
 

@@ -30,9 +30,13 @@ sub _fields {
         p_state         => { mutable => 1, },
         p_country       => { mutable => 1, },
         p_code          => { mutable => 1, },
+        vat_name        => { mutable => 1, },
+        vat_number      => { mutable => 1, },
         po_number       => { mutable => 1, },
         status          => { mutable => 0, },
         amount          => { mutable => 0, },
+        currency_code   => { mutable => 1, },
+        language        => { mutable => 1, },
         date            => { mutable => 1, },
         notes           => { mutable => 1, },
         terms           => { mutable => 1, },
@@ -40,6 +44,9 @@ sub _fields {
         return_uri      => { mutable => 1, },
         send_snail_mail => { mutable => 1, },
         send_email      => { mutable => 1, },
+
+        # autobill will need to be an object similar to InvoiceLine
+        #autobill        => { ... },
         lines           => {
             mutable      => 1,
             made_of      => 'Net::FreshBooks::API::InvoiceLine',
@@ -102,24 +109,24 @@ Net::FreshBooks::API::Recurring - FreshBooks Recurring Items
     See also L<Net::FreshBooks::API::Base> for other available methods, such
     as create, update, get, list and delete.
 
-=head2 recurring->create
+=head2 create
 
     my $recurring = $fb->recurring->create({...});
 
-=head2 recurring->update
+=head2 update
 
 Please see client->update for an example of how to use this method.
 
-=head2 recurring->get
+=head2 get
 
     my $item = $recurring->get({ recurring_id => $recurring_id });
 
-=head2 recurring->delete
+=head2 delete
 
     my $item = $recurring->get({ recurring_id => $recurring_id });
     $item->delete;
 
-=head2 recurring->list
+=head2 list
 
 Returns a L<Net::FreshBooks::API::Iterator> object.
 
@@ -128,7 +135,7 @@ Returns a L<Net::FreshBooks::API::Iterator> object.
         print $recurring->recurring_id, "\n";
     }
 
-=head2 recurring->lines
+=head2 lines
 
 Returns an ARRAYREF of Net::FreshBooks::API::InvoiceLine objects
 
