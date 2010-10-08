@@ -150,8 +150,9 @@ sub _build_oauth {
     my $self = shift;
 
     my %tokens = (
-        consumer_key    => $self->consumer_key,
-        consumer_secret => $self->consumer_secret,
+        consumer_key    => $self->consumer_key || undef,
+        consumer_secret => $self->consumer_secret || undef,
+        account_name    => $self->account_name || undef,
     );
 
     if ( $self->access_token && $self->access_token_secret ) {
