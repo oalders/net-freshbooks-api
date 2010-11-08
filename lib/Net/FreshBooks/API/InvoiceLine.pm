@@ -2,31 +2,29 @@ use strict;
 use warnings;
 
 package Net::FreshBooks::API::InvoiceLine;
+
 use Moose;
 extends 'Net::FreshBooks::API::Base';
 
-my $fields = _fields();
-foreach my $method ( keys %{$fields} ) {
-    has $method => (  is => $fields->{$method}->{mutable} ? 'rw' : 'ro' );
-}
+has $_ => ( is => _fields()->{$_}->{is} ) for sort keys %{ _fields() };
+
+sub node_name { return 'line' }
 
 sub _fields {
     return {
-        line_id      => { mutable => 0, },
-        amount       => { mutable => 0, },
-        name         => { mutable => 1, },
-        description  => { mutable => 1, },
-        unit_cost    => { mutable => 1, },
-        quantity     => { mutable => 1, },
-        tax1_name    => { mutable => 1, },
-        tax2_name    => { mutable => 1, },
-        tax1_percent => { mutable => 1, },
-        tax2_percent => { mutable => 1, },
-        type         => { mutable => 1, },
+        line_id      => { is => 'ro' },
+        amount       => { is => 'ro' },
+        name         => { is => 'rw' },
+        description  => { is => 'rw' },
+        unit_cost    => { is => 'rw' },
+        quantity     => { is => 'rw' },
+        tax1_name    => { is => 'rw' },
+        tax2_name    => { is => 'rw' },
+        tax1_percent => { is => 'rw' },
+        tax2_percent => { is => 'rw' },
+        type         => { is => 'rw' },
     };
 }
-
-sub node_name { return 'line' }
 
 __PACKAGE__->meta->make_immutable();
 

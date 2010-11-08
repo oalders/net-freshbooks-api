@@ -8,26 +8,21 @@ extends 'Net::FreshBooks::API::Base';
 
 use Net::FreshBooks::API::Links;
 
-my $fields = _fields();
-foreach my $method ( keys %{$fields} ) {
-    has $method => (  is => $fields->{$method}->{mutable} ? 'rw' : 'ro' );
-}
+has $_ => ( is => _fields()->{$_}->{is} ) for sort keys %{ _fields() };
 
 sub _fields {
     return {
-        payment_id => { mutable => 0, },
-        client_id  => { mutable => 1, },
-        invoice_id => { mutable => 1, },
-
-        date          => { mutable => 1, },
-        amount        => { mutable => 1, },
-        currency_code => { mutable => 1, },
-        type          => { mutable => 1, },
-        notes         => { mutable => 1, },
-        updated       => { mutable => 0, },
+        payment_id    => { is => 'ro' },
+        client_id     => { is => 'rw' },
+        invoice_id    => { is => 'rw' },
+        date          => { is => 'rw' },
+        amount        => { is => 'rw' },
+        currency_code => { is => 'rw' },
+        type          => { is => 'rw' },
+        notes         => { is => 'rw' },
+        updated       => { is => 'ro' },
     };
 }
-
 
 __PACKAGE__->meta->make_immutable();
 

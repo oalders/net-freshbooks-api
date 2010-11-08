@@ -6,62 +6,49 @@ package Net::FreshBooks::API::Client;
 use Moose;
 extends 'Net::FreshBooks::API::Base';
 
-use Net::FreshBooks::API::Links;
-
-my $fields = _fields();
-foreach my $method ( keys %{$fields} ) {
-    has $method => (  is => $fields->{$method}->{mutable} ? 'rw' : 'ro' );
-}
-
+has $_ => ( is => _fields()->{$_}->{is} ) for sort keys %{ _fields() };
 
 sub _fields {
     return {
-        client_id => { mutable => 0, },
+        client_id     => { is => 'ro' },
+        currency_code => { is => 'rw' },
+        first_name    => { is => 'rw' },
+        last_name     => { is => 'rw' },
+        language      => { is => 'rw' },
+        notes         => { is => 'rw' },
+        organization  => { is => 'rw' },
+        p_city        => { is => 'rw' },
+        p_code        => { is => 'rw' },
+        p_country     => { is => 'rw' },
+        p_state       => { is => 'rw' },
+        p_street1     => { is => 'rw' },
+        p_street2     => { is => 'rw' },
+        vat_name      => { is => 'rw' },
+        vat_number    => { is => 'rw' },
 
-        first_name   => { mutable => 1, },
-        last_name    => { mutable => 1, },
-        organization => { mutable => 1, },
-
-        email      => { mutable => 1, },
-        username   => { mutable => 1, },
-        password   => { mutable => 1 },
-        work_phone => { mutable => 1, },
-        home_phone => { mutable => 1, },
-        mobile     => { mutable => 1, },
-        fax        => { mutable => 1, },
-        language   => { mutable => 1, },
-        currency_code => { mutable => 1, },
-
-        # credit is now made up of currency specific items, so this
-        # probably won't work
-        credit => { mutable => 0, },
-        notes  => { mutable => 1, },
-
-        p_street1 => { mutable => 1, },
-        p_street2 => { mutable => 1, },
-        p_city    => { mutable => 1, },
-        p_state   => { mutable => 1, },
-        p_country => { mutable => 1, },
-        p_code    => { mutable => 1, },
-
-        s_street1 => { mutable => 1, },
-        s_street2 => { mutable => 1, },
-        s_city    => { mutable => 1, },
-        s_state   => { mutable => 1, },
-        s_country => { mutable => 1, },
-        s_code    => { mutable => 1, },
-
-        links => {
-            mutable      => 0,
+        # custom fields
+        credit     => { is => 'ro' },
+        email      => { is => 'rw' },
+        fax        => { is => 'rw' },
+        home_phone => { is => 'rw' },
+        links      => {
+            is           => 'ro',
             made_of      => 'Net::FreshBooks::API::Links',
             presented_as => 'single',
         },
+        mobile     => { is => 'rw' },
+        password   => { is => 'rw' },
+        s_city     => { is => 'rw' },
+        s_code     => { is => 'rw' },
+        s_country  => { is => 'rw' },
+        s_state    => { is => 'rw' },
+        s_street1  => { is => 'rw' },
+        s_street2  => { is => 'rw' },
+        username   => { is => 'rw' },
+        work_phone => { is => 'rw' },
         
-        vat_name   => { mutable => 1, },
-        vat_number => { mutable => 1, },
-        
-        # folder is listed in the API docs, but throws an error anyway
-        #folder     => { mutable => 1, },
+        #folder     => { is => 'rw' },
+
     };
 }
 

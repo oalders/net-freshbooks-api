@@ -1,3 +1,5 @@
 # Komodo project files
 *.kpf
 .build
+Net-FreshBooks-API*
+*.komodoproject

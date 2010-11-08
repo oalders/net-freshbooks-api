@@ -8,7 +8,7 @@ use DateTime;
 use Test::More;
 
 plan -r 't/config.pl' && require( 't/config.pl' )
-    ? ( tests => 72 )
+    ? ( tests => 101 )
     : ( skip_all => "Need test connection details in t/config.pl"
         . " - see t/config_sample.pl for details" );
 
@@ -28,6 +28,10 @@ can_ok( $fb, 'recurring' );
 diag( "verbose: " . $fb->verbose );
 
 my $recurring = $fb->recurring;
+
+foreach my $method ( sort keys %{$recurring->_fields() } ) {
+    can_ok( $recurring, $method );    
+}
 
 isa_ok( $recurring, "Net::FreshBooks::API::Recurring" );
 

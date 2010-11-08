@@ -4,58 +4,59 @@ use warnings;
 package Net::FreshBooks::API::Recurring;
 
 use Moose;
-extends 'Net::FreshBooks::API::Invoice';
+extends 'Net::FreshBooks::API::Base';
 
-use Net::FreshBooks::API::InvoiceLine;
+with 'Net::FreshBooks::API::Role::LineItem';
 
-my $fields = _fields();
-foreach my $method ( keys %{$fields} ) {
-    has $method => (  is => $fields->{$method}->{mutable} ? 'rw' : 'ro' );
-}
+has $_ => ( is => _fields()->{$_}->{is} ) for sort keys %{ _fields() };
 
 sub _fields {
 
     return {
-        recurring_id    => { mutable => 0, },
-        frequency       => { mutable => 1, },
-        occurrences     => { mutable => 1, },
-        stopped         => { mutable => 1, },
-        client_id       => { mutable => 1, },
-        organization    => { mutable => 1, },
-        first_name      => { mutable => 1, },
-        last_name       => { mutable => 1, },
-        p_street1       => { mutable => 1, },
-        p_street2       => { mutable => 1, },
-        p_city          => { mutable => 1, },
-        p_state         => { mutable => 1, },
-        p_country       => { mutable => 1, },
-        p_code          => { mutable => 1, },
-        vat_name        => { mutable => 1, },
-        vat_number      => { mutable => 1, },
-        po_number       => { mutable => 1, },
-        status          => { mutable => 0, },
-        amount          => { mutable => 0, },
-        currency_code   => { mutable => 1, },
-        language        => { mutable => 1, },
-        date            => { mutable => 1, },
-        notes           => { mutable => 1, },
-        terms           => { mutable => 1, },
-        discount        => { mutable => 1, },
-        return_uri      => { mutable => 1, },
-        send_snail_mail => { mutable => 1, },
-        send_email      => { mutable => 1, },
 
+        amount        => { is => 'ro' },
+        client_id     => { is => 'rw' },
+        currency_code => { is => 'rw' },
+        date          => { is => 'rw' },
+        discount      => { is => 'rw' },
+        first_name    => { is => 'rw' },
+        language      => { is => 'rw' },
+        last_name     => { is => 'rw' },
+        notes         => { is => 'rw' },
+        organization  => { is => 'rw' },
+        p_city        => { is => 'rw' },
+        p_code        => { is => 'rw' },
+        p_country     => { is => 'rw' },
+        p_state       => { is => 'rw' },
+        p_street1     => { is => 'rw' },
+        p_street2     => { is => 'rw' },
+        po_number     => { is => 'rw' },
+        status        => { is => 'ro' },
+        terms         => { is => 'rw' },
+        vat_name      => { is => 'rw' },
+        vat_number    => { is => 'rw' },
+
+        # custom fields
         # autobill will need to be an object similar to InvoiceLine
         #autobill        => { ... },
-        lines           => {
-            mutable      => 1,
+        frequency => { is => 'rw' },
+        lines     => {
+            is           => 'rw',
             made_of      => 'Net::FreshBooks::API::InvoiceLine',
             presented_as => 'array',
         },
-
+        occurrences     => { is => 'rw' },
+        recurring_id    => { is => 'ro' },
+        return_uri      => { is => 'rw' },
+        send_email      => { is => 'rw' },
+        send_snail_mail => { is => 'rw' },
+        stopped         => { is => 'rw' },
     };
 }
 
+__PACKAGE__->meta->make_immutable();
+
+1;
 
 =head1 NAME
 
@@ -163,7 +164,3 @@ This program is free software; you can redistribute
 it and/or modify it under the same terms as Perl itself.
 
 =cut
-
-__PACKAGE__->meta->make_immutable();
-
-1;

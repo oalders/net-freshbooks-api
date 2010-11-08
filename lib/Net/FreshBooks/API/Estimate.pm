@@ -1,13 +1,14 @@
 use strict;
 use warnings;
 
-package Net::FreshBooks::API::Invoice;
+package Net::FreshBooks::API::Estimate;
 
 use Moose;
 extends 'Net::FreshBooks::API::Base';
 
 with 'Net::FreshBooks::API::Role::LineItem';
-with 'Net::FreshBooks::API::Role::SendBy';
+with 'Net::FreshBooks::API::Role::SendBy' =>
+    { -excludes => 'send_by_snail_mail' };
 
 has $_ => ( is => _fields()->{$_}->{is} ) for sort keys %{ _fields() };
 
@@ -20,7 +21,6 @@ sub _fields {
         date          => { is => 'rw' },
         discount      => { is => 'rw' },
         first_name    => { is => 'rw' },
-        language      => { is => 'rw' },
         last_name     => { is => 'rw' },
         notes         => { is => 'rw' },
         organization  => { is => 'rw' },
@@ -37,10 +37,9 @@ sub _fields {
         vat_number    => { is => 'rw' },
 
         # custom fields
-        amount_outstanding => { is => 'ro' },
-        folder             => { is => 'rw' },
-        invoice_id         => { is => 'ro' },
-        lines              => {
+        estimate_id => { is => 'ro' },
+        folder      => { is => 'rw' },
+        lines       => {
             is           => 'rw',
             made_of      => 'Net::FreshBooks::API::InvoiceLine',
             presented_as => 'array',
@@ -50,10 +49,7 @@ sub _fields {
             made_of      => 'Net::FreshBooks::API::Links',
             presented_as => 'single',
         },
-        number       => { is => 'rw' },
-        recurring_id => { is => 'ro' },
-        return_uri   => { is => 'rw' },
-        updated      => { is => 'ro' },
+        number => { is => 'rw' },
 
     };
 }
@@ -70,20 +66,20 @@ L<Net::FreshBooks::API> will construct this object for you.
 =head1 SYNOPSIS
 
     my $fb = Net::FreshBooks::API->new({ ... });
-    my $invoice = $fb->invoice;
+    my $estimate = $fb->estimate;
 
 =head2 create
 
-Create an invoice in the FreshBooks system.
+Create an estimate in the FreshBooks system.
 
-my $invoice = $fb->invoice->create({...});
+my $estimate = $fb->estimate->create({...});
 
 =head2 add_line
 
-Create a new L<Net::FreshBooks::API::InvoiceLine> object and add it to the end
-of the list of lines
+Create a new L<Net::FreshBooks::API::estimateLine> object and add it to the
+end of the list of lines
 
-    my $bool = $invoice->add_line(
+    my $bool = $estimate->add_line(
         {   name         => "Yard Work",          # (Optional)
             description  => "Mowed the lawn.",    # (Optional)
             unit_cost    => 10,                   # Default is 0
@@ -98,56 +94,49 @@ of the list of lines
 
 =head2 send_by_email
 
-Send the invoice by email.
+Send the estimate by email.
 
-  my $result = $invoice->send_by_email();
-
-=head2 send_by_snail_mail
-
-Send the invoice by snail mail.
-
-  my $result = $invoice->send_by_snail_mail();
+  my $result = $estimate->send_by_email();
 
 =head2 update
 
-    # update after edits
-    $invoice->organization('Perl Foundation');
-    $invoice->update;
+    $estimate->organization('Perl Foundation');
+    $estimate->update;
 
-    # or immediately
-    $invoice->update( { organization => 'Perl Foundation', } );
+    # or more quickly
+    $estimate->update( { organization => 'Perl Foundation', } );
     
 =head2 get
 
-    my $invoice = $fb->invoice->get({ invoice_id => $invoice_id });
+    my $estimate = $fb->estimate->get({ estimate_id => $estimate_id });
 
 =head2 delete
 
-    my $invoice = $fb->invoice->get({ invoice_id => $invoice_id });
-    $invoice->delete;
+    my $estimate = $fb->estimate->get({ estimate_id => $estimate_id });
+    $estimate->delete;
 
 =head2 links
 
 Returns a L<Net::FreshBooks::API::Links> object, which returns FreshBooks
 URLs.
 
-    print "send this url to client: " . $invoice->links->client_view;
+    print "send this url to client: " . $estimate->links->client_view;
 
 =head2 list
 
 Returns a L<Net::FreshBooks::API::Iterator> object.
 
-    # list unpaid invoices
-    my $invoices = $fb->invoice->list({ status => 'unpaid' });
+    # list unpaid estimates
+    my $estimates = $fb->estimate->list({ status => 'unpaid' });
 
-    while ( my $invoice = $invoices->list ) {
-        print $invoice->invoice_id, "\n";
+    while ( my $estimate = $estimates->list ) {
+        print $estimate->estimate_id, "\n";
     }
 
 =head2 lines
 
 Returns an ARRAYREF of Net::FreshBooks::API::InvoiceLine objects
 
-    foreach my $line ( @{ $invoice->lines } ) {
+    foreach my $line ( @{ $estimate->lines } ) {
         print $line->amount, "\n";
     }

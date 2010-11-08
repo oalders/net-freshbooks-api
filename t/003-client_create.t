@@ -1,7 +1,8 @@
 #!/usr/bin/env perl
 
 use strict;
-use Test::More tests => 31;
+use Data::Dump qw( dump );
+use Test::More tests => 61;
 use File::Slurp;
 use Sub::Override;
 use Test::XML;
@@ -55,6 +56,10 @@ my $fb = Net::FreshBooks::API->new(
     }
 );
 ok $fb, "created the FB object";
+
+foreach my $method ( sort keys %{$fb->client->_fields() } ) {
+    can_ok( $fb->client, $method );    
+}
 
 my $client = $fb->client->create($client_create_args);
 ok $client,     "Got a client back";

@@ -256,7 +256,7 @@ sub field_names_rw {
     my $fields = $self->_fields;
 
     my @names = sort
-        grep { $fields->{$_}{mutable} }
+        grep { $fields->{$_}{is} eq 'rw' }
         keys %$fields;
 
     return @names;

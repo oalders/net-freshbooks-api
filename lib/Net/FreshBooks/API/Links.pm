@@ -6,17 +6,14 @@ package Net::FreshBooks::API::Links;
 use Moose;
 extends 'Net::FreshBooks::API::Base';
 
-my $fields = _fields();
-foreach my $method ( keys %{$fields} ) {
-    has $method => (  is => $fields->{$method}->{mutable} ? 'rw' : 'ro' );
-}
+has $_ => ( is => _fields()->{$_}->{is} ) for sort keys %{ _fields() };
 
 sub _fields {
     return {
-        client_view => { mutable => 0, },
-        view        => { mutable => 0, },
-        edit        => { mutable => 0, },
-        statement   => { mutable => 0, },
+        client_view => { is => 'ro' },
+        view        => { is => 'ro' },
+        edit        => { is => 'ro' },
+        statement   => { is => 'ro' },
     };
 }
 
@@ -43,7 +40,7 @@ The methods on this object all return FreshBooks URLs.
 
 =head2 client_view
 
-    Provided for invoice and client links.
+    Provided for invoice, client and estimate links.
 
 =head2 view
 
