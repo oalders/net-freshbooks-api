@@ -72,7 +72,24 @@ L<Net::FreshBooks::API> will construct this object for you.
 
 Create an estimate in the FreshBooks system.
 
-my $estimate = $fb->estimate->create({...});
+    my $estimate = $fb->estimate->create({...});
+
+=head2 delete
+
+    my $estimate = $fb->estimate->get({ estimate_id => $estimate_id });
+    $estimate->delete;
+
+=head2 get
+
+    my $estimate = $fb->estimate->get({ estimate_id => $estimate_id });
+    
+=head2 update
+
+    $estimate->organization('Perl Foundation');
+    $estimate->update;
+
+    # or more quickly
+    $estimate->update( { organization => 'Perl Foundation', } );
 
 =head2 add_line
 
@@ -90,31 +107,7 @@ end of the list of lines
             tax2_percent => 6,                    # (Optional)
         }
     );
-
-
-=head2 send_by_email
-
-Send the estimate by email.
-
-  my $result = $estimate->send_by_email();
-
-=head2 update
-
-    $estimate->organization('Perl Foundation');
-    $estimate->update;
-
-    # or more quickly
-    $estimate->update( { organization => 'Perl Foundation', } );
-
-=head2 get
-
-    my $estimate = $fb->estimate->get({ estimate_id => $estimate_id });
-
-=head2 delete
-
-    my $estimate = $fb->estimate->get({ estimate_id => $estimate_id });
-    $estimate->delete;
-
+    
 =head2 links
 
 Returns a L<Net::FreshBooks::API::Links> object, which returns FreshBooks
@@ -140,3 +133,11 @@ Returns an ARRAYREF of Net::FreshBooks::API::InvoiceLine objects
     foreach my $line ( @{ $estimate->lines } ) {
         print $line->amount, "\n";
     }
+
+=head2 send_by_email
+
+Send the estimate by email.
+
+  my $result = $estimate->send_by_email();
+  
+=cut

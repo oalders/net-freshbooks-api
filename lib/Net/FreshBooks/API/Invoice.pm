@@ -78,6 +78,50 @@ Create an invoice in the FreshBooks system.
 
 my $invoice = $fb->invoice->create({...});
 
+=head2 get
+
+    my $invoice = $fb->invoice->get({ invoice_id => $invoice_id });
+
+=head2 delete
+
+    my $invoice = $fb->invoice->get({ invoice_id => $invoice_id });
+    $invoice->delete;
+    
+=head2 update
+
+    # update after edits
+    $invoice->organization('Perl Foundation');
+    $invoice->update;
+
+    # or immediately
+    $invoice->update( { organization => 'Perl Foundation', } );
+
+=head2 links
+
+Returns a L<Net::FreshBooks::API::Links> object, which returns FreshBooks
+URLs.
+
+    print "send this url to client: " . $invoice->links->client_view;
+
+=head2 list
+
+Returns a L<Net::FreshBooks::API::Iterator> object.
+
+    # list unpaid invoices
+    my $invoices = $fb->invoice->list({ status => 'unpaid' });
+
+    while ( my $invoice = $invoices->list ) {
+        print $invoice->invoice_id, "\n";
+    }
+
+=head2 lines
+
+Returns an ARRAYREF of Net::FreshBooks::API::InvoiceLine objects
+
+    foreach my $line ( @{ $invoice->lines } ) {
+        print $line->amount, "\n";
+    }
+    
 =head2 add_line
 
 Create a new L<Net::FreshBooks::API::InvoiceLine> object and add it to the end
@@ -108,46 +152,4 @@ Send the invoice by snail mail.
 
   my $result = $invoice->send_by_snail_mail();
 
-=head2 update
-
-    # update after edits
-    $invoice->organization('Perl Foundation');
-    $invoice->update;
-
-    # or immediately
-    $invoice->update( { organization => 'Perl Foundation', } );
-
-=head2 get
-
-    my $invoice = $fb->invoice->get({ invoice_id => $invoice_id });
-
-=head2 delete
-
-    my $invoice = $fb->invoice->get({ invoice_id => $invoice_id });
-    $invoice->delete;
-
-=head2 links
-
-Returns a L<Net::FreshBooks::API::Links> object, which returns FreshBooks
-URLs.
-
-    print "send this url to client: " . $invoice->links->client_view;
-
-=head2 list
-
-Returns a L<Net::FreshBooks::API::Iterator> object.
-
-    # list unpaid invoices
-    my $invoices = $fb->invoice->list({ status => 'unpaid' });
-
-    while ( my $invoice = $invoices->list ) {
-        print $invoice->invoice_id, "\n";
-    }
-
-=head2 lines
-
-Returns an ARRAYREF of Net::FreshBooks::API::InvoiceLine objects
-
-    foreach my $line ( @{ $invoice->lines } ) {
-        print $line->amount, "\n";
-    }
+=cut

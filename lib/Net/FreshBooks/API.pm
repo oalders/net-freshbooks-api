@@ -328,6 +328,10 @@ Create a new API object the old (discouraged) way:
 
 Returns a L<Net::FreshBooks::API::Client> object.
 
+=head2 estimate
+
+Creates and returns a new L<Net::FreshBooks::API::Estimate> object.
+
 =head2 invoice
 
 Creates and returns a new L<Net::FreshBooks::API::Invoice> object.

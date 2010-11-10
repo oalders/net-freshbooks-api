@@ -114,6 +114,15 @@ Net::FreshBooks::API::Recurring - FreshBooks Recurring Items
 
     my $recurring = $fb->recurring->create({...});
 
+=head2 delete
+
+    my $item = $recurring->get({ recurring_id => $recurring_id });
+    $item->delete;
+
+=head2 get
+
+    my $item = $recurring->get({ recurring_id => $recurring_id });
+
 =head2 update
 
     $referring->organization('Perl Foundation');
@@ -121,15 +130,6 @@ Net::FreshBooks::API::Recurring - FreshBooks Recurring Items
 
     # or more quickly
     $referring->update( { organization => 'Perl Foundation', } );
-
-=head2 get
-
-    my $item = $recurring->get({ recurring_id => $recurring_id });
-
-=head2 delete
-
-    my $item = $recurring->get({ recurring_id => $recurring_id });
-    $item->delete;
 
 =head2 list
 

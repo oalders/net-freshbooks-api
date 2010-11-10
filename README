@@ -2,7 +2,7 @@ NAME
     Net::FreshBooks::API - Easy OO access to the FreshBooks.com API
 
 VERSION
-    version 0.14
+    version 0.15
 
 SYNOPSIS
         use Net::FreshBooks::API;
@@ -148,6 +148,9 @@ METHODS
 
   client
     Returns a Net::FreshBooks::API::Client object.
+
+  estimate
+    Creates and returns a new Net::FreshBooks::API::Estimate object.
 
   invoice
     Creates and returns a new Net::FreshBooks::API::Invoice object.

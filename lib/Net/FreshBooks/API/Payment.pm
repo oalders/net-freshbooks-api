@@ -45,6 +45,15 @@ Create a new payment in the FreshBooks system
 
     my $payment = $fb->payment->create({...});
 
+=head2 delete
+
+    my $payment = $fb->payment->get({ payment_id => $payment_id });
+    $payment->delete;
+    
+=head2 get
+
+    my $payment = $fb->payment->get({ payment_id => $payment_id });
+    
 =head2 update
 
     $payment->notes('Payment Refunded.');
@@ -52,15 +61,6 @@ Create a new payment in the FreshBooks system
 
     # or more directly
     $client->update( { notes => 'Payment refunded' } );
-
-=head2 get
-
-    my $payment = $fb->payment->get({ payment_id => $payment_id });
-
-=head2 delete
-
-    my $payment = $fb->payment->get({ payment_id => $payment_id });
-    $payment->delete;
 
 =head2 list
 
