@@ -5,6 +5,7 @@ package Net::FreshBooks::API::Client;
 
 use Moose;
 extends 'Net::FreshBooks::API::Base';
+with 'Net::FreshBooks::API::Role::CRUD';
 
 has $_ => ( is => _fields()->{$_}->{is} ) for sort keys %{ _fields() };
 
@@ -46,7 +47,7 @@ sub _fields {
         s_street2  => { is => 'rw' },
         username   => { is => 'rw' },
         work_phone => { is => 'rw' },
-        
+
         #folder     => { is => 'rw' },
 
     };

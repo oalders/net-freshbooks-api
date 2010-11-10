@@ -5,6 +5,7 @@ package Net::FreshBooks::API::Payment;
 
 use Moose;
 extends 'Net::FreshBooks::API::Base';
+with 'Net::FreshBooks::API::Role::CRUD';
 
 use Net::FreshBooks::API::Links;
 
@@ -46,7 +47,11 @@ Create a new payment in the FreshBooks system
 
 =head2 update
 
-Please see client->update for an example of how to use this method.
+    $payment->notes('Payment Refunded.');
+    $payment->update;
+
+    # or more directly
+    $client->update( { notes => 'Payment refunded' } );
 
 =head2 get
 

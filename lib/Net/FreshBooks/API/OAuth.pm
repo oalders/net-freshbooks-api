@@ -15,12 +15,13 @@ sub new {
     my %tokens = @_;
 
     foreach my $key ( 'consumer_secret', 'consumer_key', 'account_name' ) {
-        if ( !exists $tokens{$key} ) {
+        if ( !exists $tokens{$key} || !$tokens{$key} ) {
             croak( "$key required as an argument to new()" );
         }
     }
 
     my $account_name = delete $tokens{account_name};
+    
     my $url = 'https://' . $account_name . '.freshbooks.com/oauth';
 
     my %create = (

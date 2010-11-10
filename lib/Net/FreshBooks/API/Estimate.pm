@@ -5,7 +5,7 @@ package Net::FreshBooks::API::Estimate;
 
 use Moose;
 extends 'Net::FreshBooks::API::Base';
-
+with 'Net::FreshBooks::API::Role::CRUD';
 with 'Net::FreshBooks::API::Role::LineItem';
 with 'Net::FreshBooks::API::Role::SendBy' =>
     { -excludes => 'send_by_snail_mail' };
@@ -105,7 +105,7 @@ Send the estimate by email.
 
     # or more quickly
     $estimate->update( { organization => 'Perl Foundation', } );
-    
+
 =head2 get
 
     my $estimate = $fb->estimate->get({ estimate_id => $estimate_id });

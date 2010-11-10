@@ -1,5 +1,9 @@
 Revision history for Perl module Net::FreshBooks::API
 
+0.15 2010-11-10
+    - Estimate objects are now supported
+    - Moved some methods into Moose roles
+
 0.14 2010-10-07
     - Fixed missing package versions which broke distro 0.13
 

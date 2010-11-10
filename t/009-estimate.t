@@ -8,7 +8,7 @@ use DateTime;
 use Test::More;
 
 plan -r 't/config.pl' && require( 't/config.pl' )
-    ? ( tests => 33 )
+    ? ( tests => 34 )
     : ( skip_all => "Need test connection details in t/config.pl"
         . " - see t/config_sample.pl for details" );
 
@@ -27,7 +27,7 @@ ok $fb, "created the FB object";
 my $estimate = $fb->estimate;
 
 foreach my $method ( sort keys %{$fb->estimate->_fields() } ) {
-    can_ok( $estimate, $method );    
+    can_ok( $estimate, $method );
 }
 
 isa_ok( $estimate, 'Net::FreshBooks::API::Estimate', );
@@ -53,4 +53,11 @@ ok $estimate->add_line(
     "Add second line to the estimate";
 
 ok $estimate->create, "create the estimate";
-ok ( $estimate->send_by_email, "sent by email" );
+is ( $estimate->status, "draft", 'flagged as draft');
+
+#$estimate->status('sent');
+$estimate->update({ status => 'sent' });
+
+is ( $estimate->status, "sent", 'flagged as sent');
+
+#ok ( $estimate->send_by_email, "sent by email" );

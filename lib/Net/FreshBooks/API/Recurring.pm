@@ -5,7 +5,7 @@ package Net::FreshBooks::API::Recurring;
 
 use Moose;
 extends 'Net::FreshBooks::API::Base';
-
+with 'Net::FreshBooks::API::Role::CRUD';
 with 'Net::FreshBooks::API::Role::LineItem';
 
 has $_ => ( is => _fields()->{$_}->{is} ) for sort keys %{ _fields() };
@@ -116,7 +116,11 @@ Net::FreshBooks::API::Recurring - FreshBooks Recurring Items
 
 =head2 update
 
-Please see client->update for an example of how to use this method.
+    $referring->organization('Perl Foundation');
+    $referring->update;
+
+    # or more quickly
+    $referring->update( { organization => 'Perl Foundation', } );
 
 =head2 get
 

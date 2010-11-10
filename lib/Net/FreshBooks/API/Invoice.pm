@@ -5,7 +5,7 @@ package Net::FreshBooks::API::Invoice;
 
 use Moose;
 extends 'Net::FreshBooks::API::Base';
-
+with 'Net::FreshBooks::API::Role::CRUD';
 with 'Net::FreshBooks::API::Role::LineItem';
 with 'Net::FreshBooks::API::Role::SendBy';
 
@@ -116,7 +116,7 @@ Send the invoice by snail mail.
 
     # or immediately
     $invoice->update( { organization => 'Perl Foundation', } );
-    
+
 =head2 get
 
     my $invoice = $fb->invoice->get({ invoice_id => $invoice_id });
