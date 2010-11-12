@@ -2,7 +2,7 @@
 
 use strict;
 use Data::Dump qw( dump );
-use Test::More tests => 61;
+use Test::More tests => 62;
 use File::Slurp;
 use Sub::Override;
 use Test::XML;

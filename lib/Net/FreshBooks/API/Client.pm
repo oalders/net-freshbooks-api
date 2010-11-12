@@ -48,7 +48,7 @@ sub _fields {
         username   => { is => 'rw' },
         work_phone => { is => 'rw' },
 
-        #folder     => { is => 'rw' },
+        folder     => { is => 'ro' },
 
     };
 }

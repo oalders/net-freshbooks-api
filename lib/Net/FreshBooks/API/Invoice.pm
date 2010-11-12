@@ -38,7 +38,7 @@ sub _fields {
 
         # custom fields
         amount_outstanding => { is => 'ro' },
-        folder             => { is => 'rw' },
+        folder             => { is => 'ro' },
         invoice_id         => { is => 'ro' },
         lines              => {
             is           => 'rw',

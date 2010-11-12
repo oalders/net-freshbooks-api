@@ -1,5 +1,9 @@
 Revision history for Perl module Net::FreshBooks::API
 
+0.16 2010-11-11
+    - Updated documention for Estimate.pm
+    - folder is now marked as read-only for Estimate, Invoice and Client
+
 0.15 2010-11-10
     - Estimate objects are now supported
     - Moved some methods into Moose roles

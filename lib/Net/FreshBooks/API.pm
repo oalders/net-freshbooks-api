@@ -458,7 +458,7 @@ Edmund von der Burg C<<evdb@ecclestoad.co.uk>> (Original Author)
 
 Developed for HinuHinu L<http://www.hinuhinu.com/>.
 
-Recurring item and OAuth support by:
+Recurring, Estimate and OAuth support by:
 
 Olaf Alders olaf@raybec.com
 

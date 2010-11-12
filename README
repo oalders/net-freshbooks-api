@@ -2,7 +2,7 @@ NAME
     Net::FreshBooks::API - Easy OO access to the FreshBooks.com API
 
 VERSION
-    version 0.15
+    version 0.16
 
 SYNOPSIS
         use Net::FreshBooks::API;
@@ -259,7 +259,7 @@ AUTHOR CREDITS
 
     Developed for HinuHinu <http://www.hinuhinu.com/>.
 
-    Recurring item and OAuth support by:
+    Recurring, Estimate and OAuth support by:
 
     Olaf Alders olaf@raybec.com
 
