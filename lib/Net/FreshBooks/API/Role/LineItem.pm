@@ -4,7 +4,6 @@ use warnings;
 package Net::FreshBooks::API::Role::LineItem;
 
 use Moose::Role;
-use Data::Dump qw( dump );
 use Net::FreshBooks::API::InvoiceLine;
 
 sub add_line {

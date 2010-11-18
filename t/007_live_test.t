@@ -11,7 +11,7 @@ use Net::FreshBooks::API;
 use Test::WWW::Mechanize;
 
 plan -r 't/config.pl' && require('t/config.pl')
-    ? ( tests => 20 )
+    ? ( tests => 21 )
     : ( skip_all => "Need test connection details in t/config.pl"
         . " - see t/config_sample.pl for details" );
 
@@ -111,6 +111,19 @@ throws_ok {
     );
 }
 qr/Payment from credit cannot exceed available credit/, 'error msg parsed';
+
+my $payment = $fb->payment;
+$payment->error->die_on_server_error( 0 );
+
+lives_ok {
+    $payment->create(
+        {   invoice_id => $invoice->invoice_id,
+            client_id  => $client->client_id,
+            amount     => ' 1.00 '
+        }
+    );
+}
+'does not die when die is disabled';
 
 # can we get the invoice from the API?
 

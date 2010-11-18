@@ -238,6 +238,9 @@ OAUTH METHODS
     acquire one with your code and then set this parameter before you
     request restricted URLs.
 
+   account_name_ok
+    Returns true if $fb->account_name appears to be valid.
+
   OAUTH ACCESSOR METHODS
   oauth
     Returns a Net::FreshBooks::API::OAuth object. This is a subclass of

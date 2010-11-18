@@ -4,25 +4,30 @@ use warnings;
 package Net::FreshBooks::API;
 use Moose;
 
+#use namespace::autoclean;
+
 use Carp qw( carp croak );
 use Data::Dump qw( dump );
+
 #use Devel::SimpleTrace;
 use Net::FreshBooks::API::Client;
+use Net::FreshBooks::API::Error;
 use Net::FreshBooks::API::Estimate;
 use Net::FreshBooks::API::Invoice;
 use Net::FreshBooks::API::OAuth;
 use Net::FreshBooks::API::Payment;
 use Net::FreshBooks::API::Recurring;
 use Path::Class;
+use WWW::Mechanize;
 use URI;
 
-has 'account_name'       => ( is => 'rw' );
-has 'auth_token'         => ( is => 'rw' );
-has 'api_version'        => ( is => 'rw', default => 2.1 );
-has 'auth_realm'         => ( is => 'rw', default => 'FreshBooks' );
-has 'oauth'              => ( is => 'rw', lazy_build => 1 );
-has 'ua'                 => ( is => 'rw', lazy_build => 1 );
-has 'verbose'            => ( is => 'rw', default => 0 );
+has 'account_name'        => ( is => 'rw' );
+has 'auth_token'          => ( is => 'rw' );
+has 'api_version'         => ( is => 'rw', default => 2.1 );
+has 'auth_realm'          => ( is => 'rw', default => 'FreshBooks' );
+has 'ua'                  => ( is => 'rw', lazy_build => 1 );
+has 'ua_name'             => ( is => 'rw', lazy_build => 1 );
+has 'verbose'             => ( is => 'rw', default => 0 );
 
 # oauth methods
 has 'access_token'        => ( is => 'rw' );
@@ -56,6 +61,8 @@ sub service_url {
     my $self = shift;
     my $account_name = $self->account_name || $self->consumer_key;
 
+    croak "account_name required" if !$account_name;
+
     my $uri
         = URI->new( 'https://'
             . $account_name
@@ -87,23 +94,32 @@ sub recurring {
 }
 
 sub _create_object {
-    
-    my $self = shift;
+
+    my $self  = shift;
     my $class = 'Net::FreshBooks::API::' . shift;
-    
+
     my $args = shift || {};
-    return $class->new( { _fb => $self, %$args } );    
-    
+    my $obj = $class->new( { _fb => $self, %$args } );
+
+    return $obj;
+
+}
+
+sub _build_ua_name {
+
+    my $self    = shift;
+    my $class   = ref( $self ) || $self;
+    my $version = $Net::FreshBooks::API::VERSION || '0.00';
+
+    return "$class (v$version)";
+
 }
 
 sub _build_ua {
     my $self = shift;
 
-    my $class = ref( $self ) || $self;
-    my $version = $Net::FreshBooks::API::VERSION || '0.00';
-
     my $ua = LWP::UserAgent->new(
-        agent             => "$class (v$version)",
+        agent             => $self->ua_name,
         protocols_allowed => ['https'],
         keep_alive        => 10,
     );
@@ -152,14 +168,14 @@ sub delete_everything_from_this_test_account {
     return $delete_count;
 }
 
-sub _build_oauth {
+sub oauth {
 
     my $self = shift;
 
     my %tokens = (
-        consumer_key    => $self->consumer_key || undef,
+        consumer_key    => $self->consumer_key    || undef,
         consumer_secret => $self->consumer_secret || undef,
-        account_name    => $self->account_name || undef,
+        account_name    => $self->account_name    || undef,
     );
 
     if ( $self->access_token && $self->access_token_secret ) {
@@ -170,6 +186,23 @@ sub _build_oauth {
     my $oauth = Net::FreshBooks::API::OAuth->new( %tokens );
 
     return $oauth;
+
+}
+
+sub account_name_ok {
+
+    my $self = shift;
+
+    my $mech = WWW::Mechanize->new( autocheck => 0 );
+    $mech->agent( $self->ua_name );
+
+    # FreshBooks redirects on all account names (valid or not)
+    $mech->requests_redirectable( [] );
+
+    $mech->get( $self->service_url );
+
+    # if your account name is valid, you'll get an "unauthorized" response
+    return ( $mech->status == 401 ) ? 1 : 0;
 
 }
 
@@ -432,6 +465,10 @@ URLs.
 Optional. If you do not have an access_token_secret, you'll need to acquire
 one with your code and then set this parameter before you request restricted
 URLs.
+
+=head3 account_name_ok
+
+Returns true if $fb->account_name appears to be valid.
 
 =head2 OAUTH ACCESSOR METHODS
 

@@ -1,8 +1,8 @@
-
 #!/usr/bin/env perl
 
 use strict;
-use Test::More tests => 6;
+use Data::Dump qw( dump );
+use Test::More tests => 8;
 
 use Net::FreshBooks::API;
 
@@ -38,3 +38,10 @@ is_deeply(
     "check that the correct credentials will be used (with no realm)"
 );
 
+my $bad_name
+    = Net::FreshBooks::API->new( account_name => 'GYZEGuMPPyz3IFvhP8dOv' );
+ok( !$bad_name->account_name_ok, "invalid service url is not found" );
+
+my $good_name
+    = Net::FreshBooks::API->new( account_name => 'netfreshbooksapi' );
+ok( $good_name->account_name_ok, "valid service url is found" );

@@ -4,11 +4,12 @@ use warnings;
 package Net::FreshBooks::API::Base;
 
 use Moose;
+#use namespace::autoclean;
+
 use Carp qw( carp croak );
 use Clone qw(clone);
 use Data::Dump qw( dump );
-
-#use Devel::SimpleTrace;
+use Net::FreshBooks::API::Error;
 use XML::LibXML ':libxml';
 use XML::Simple;
 use LWP::UserAgent;
@@ -23,17 +24,17 @@ my %plural_to_singular = (
     nesteds  => 'nested',    # for testing
 );
 
-has '_fb' => ( is => 'rw' );
-has '_sent_xml' => ( is => 'rw' );
+has 'error' => ( is => 'rw', isa => 'Net::FreshBooks::API::Error', lazy_build => 1 );
+
+has '_fb'                 => ( is => 'rw' );
+has '_sent_xml'           => ( is => 'rw' );
 
 sub new_from_node {
     my $class = shift;
     my $node  = shift;
 
     my $self = bless {}, $class;
-
     $self->_fill_in_from_node( $node );
-
     return $self;
 }
 
@@ -78,8 +79,7 @@ sub _fill_in_from_node {
                     map { $made_of->new_from_node( $_ ) }    #
                     grep { $_->nodeType eq XML_ELEMENT_NODE }
                     $match->childNodes();
-
-                $self->{$key} = \@new_objects;
+                    $self->{$key} = \@new_objects;
             }
             else {
                 $self->{$key}                                #
@@ -102,7 +102,7 @@ sub _fill_in_from_node {
 sub send_request {
     my $self = shift;
     my $args = shift;
-
+    
     my $fb     = $self->_fb;
     my $method = $args->{_method};
 
@@ -127,8 +127,6 @@ sub send_request {
     my $response_node = $self->response_xml_to_node( $return_xml );
 
     $fb->_log( debug => "Received response for $method" );
-
-    #carp "sending request\n";
 
     return $response_node;
 }
@@ -176,7 +174,8 @@ sub field_names_rw {
 
 sub parameters_to_request_xml {
     my $self       = shift;
-    my $parameters = clone( shift );
+    my $params = shift;
+    my $parameters = clone( $params );
 
     my $dom = XML::LibXML::Document->new( '1.0', 'utf-8' );
 
@@ -216,7 +215,7 @@ sub construct_element {
         elsif ( ref $val eq 'ARRAY' ) {
 
             my $singular_key = $plural_to_singular{$key}
-                || croak "couldnot convert '$key' to singular";
+                || croak "could not convert '$key' to singular";
 
             my $wrapper = XML::LibXML::Element->new( $key );
             $element->addChild( $wrapper );
@@ -255,7 +254,11 @@ sub response_xml_to_node {
 
     if ( $response_status ne 'ok' ) {
         my $msg = XMLin( $xml );
-        croak "FreshBooks server returned error: '$msg->{'error'}'";
+        my $error = "FreshBooks server returned error: '$msg->{error}'";
+        $self->error->handle_server_error( $error );
+    }
+    else {
+        $self->error->last_server_error( undef );
     }
 
     return $response;
@@ -294,9 +297,19 @@ sub send_xml_to_freshbooks {
 
     if ( !$response->is_success ) {
         croak "FreshBooks request failed: " . $response->status_line;
+        $self->error->handle_server_error( "FreshBooks request failed: " . $response->status_line );
     }
 
     return $response->content;
+}
+
+sub _build_error {
+    
+    my $self = shift;
+    my $error = Net::FreshBooks::API::Error->new;
+    return $error;
+    
+    
 }
 
 # When FreshBooks returns info on recurring items, it does not return the same

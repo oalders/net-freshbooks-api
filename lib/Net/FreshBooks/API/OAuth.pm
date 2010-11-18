@@ -19,6 +19,8 @@ sub new {
             croak( "$key required as an argument to new()" );
         }
     }
+    
+    warn dump( \%tokens );
 
     my $account_name = delete $tokens{account_name};
     
