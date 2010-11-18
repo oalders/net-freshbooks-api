@@ -2,7 +2,7 @@ NAME
     Net::FreshBooks::API - Easy OO access to the FreshBooks.com API
 
 VERSION
-    version 0.17
+    version 0.18
 
 SYNOPSIS
         use Net::FreshBooks::API;

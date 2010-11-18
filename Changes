@@ -1,6 +1,6 @@
 Revision history for Perl module Net::FreshBooks::API
 
-0.18 2010-11-??
+0.18 2010-11-17
     - API::oauth() method now returns a new object with each call
     - Added API::account_name_ok() for name validation
     - Added Net::FreshBooks::API::Error for exception handling
