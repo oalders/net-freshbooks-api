@@ -20,8 +20,6 @@ sub new {
         }
     }
     
-    warn dump( \%tokens );
-
     my $account_name = delete $tokens{account_name};
     
     my $url = 'https://' . $account_name . '.freshbooks.com/oauth';
