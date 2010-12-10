@@ -12,6 +12,12 @@ use Net::FreshBooks::API::OAuth;
 use Moose;
 with 'MooseX::Getopt';
 
+has 'account_name' => (
+    is       => 'ro',
+    isa      => 'Str',
+    required => 1
+);
+
 has 'consumer_key' => (
     is       => 'ro',
     isa      => 'Str',
@@ -38,6 +44,7 @@ sub run {
 
     # Get the tokens from the command line
     my %tokens = (
+        account_name    => $self->account_name,
         consumer_key    => $self->consumer_key,
         consumer_secret => $self->consumer_secret,
     );
