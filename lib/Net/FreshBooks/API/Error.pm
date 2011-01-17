@@ -26,3 +26,17 @@ sub handle_server_error {
 }
 
 1;
+
+=pod
+
+=head1 SYNOPSIS
+
+This error handling module is experimental.  You should not rely on it to
+exist in later releases.
+
+=head2 handle_server_error
+
+Croaks with an appropriate error message if die_on_server_error is true.
+Otherwise the error is stored in ->last_server_error.
+
+=cut

@@ -17,3 +17,14 @@ sub add_line {
 }
 
 1;
+
+=pod
+
+=head1 SYNOPSIS
+
+Provides line item functionality to Invoices and Estimates. See those modules
+for specific examples of how to use this method.
+
+=head2 add_line( $args)
+
+=cut

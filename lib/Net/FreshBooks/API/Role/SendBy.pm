@@ -36,3 +36,17 @@ sub _send_using {
 }
 
 1;
+
+=pod
+
+=head1 SYNOPSIS
+
+Roles for sending by email and snail mail. Used for both Estimates and
+Invoices. Please refer to these modules for specific examples of how to use
+these methods.
+
+=head2 send_by_email
+
+=head2 send_by_snail_mail
+
+=cut

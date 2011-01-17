@@ -2,7 +2,7 @@ NAME
     Net::FreshBooks::API - Easy OO access to the FreshBooks.com API
 
 VERSION
-    version 0.18
+    version 0.19
 
 SYNOPSIS
         use Net::FreshBooks::API;
@@ -280,7 +280,7 @@ AUTHORS
     *   Olaf Alders <olaf@wundercounter.com>
 
 COPYRIGHT AND LICENSE
-    This software is copyright (c) 2010 by Edmund von der Burg & Olaf
+    This software is copyright (c) 2011 by Edmund von der Burg & Olaf
     Alders.
 
     This is free software; you can redistribute it and/or modify it under
