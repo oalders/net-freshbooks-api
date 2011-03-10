@@ -13,6 +13,7 @@ use Data::Dump qw( dump );
 use Net::FreshBooks::API::Client;
 use Net::FreshBooks::API::Error;
 use Net::FreshBooks::API::Estimate;
+use Net::FreshBooks::API::Gateway;
 use Net::FreshBooks::API::Invoice;
 use Net::FreshBooks::API::OAuth;
 use Net::FreshBooks::API::Payment;
@@ -79,6 +80,10 @@ sub client {
 
 sub estimate {
     return shift->_create_object( 'Estimate', @_ );
+}
+
+sub gateway {
+    return shift->_create_object( 'Gateway', @_ );
 }
 
 sub invoice {
