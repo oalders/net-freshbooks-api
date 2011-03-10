@@ -110,14 +110,14 @@ the update() method, which is described below.
 
 =head2 links
 
-Returns a L<Net::FreshBooks::API::Links> object, which returns FreshBooks
+Returns an L<Net::FreshBooks::API::Links> object, which returns FreshBooks
 URLs.
 
     print "Client view: " . $fb->client->links->client_view;
 
 =head2 list
 
-Returns n L<Net::FreshBooks::API::Iterator> object. Currently,
+Returns an L<Net::FreshBooks::API::Iterator> object. Currently,
 all list() functionality defaults to 15 items per page.
 
     #list all active clients
