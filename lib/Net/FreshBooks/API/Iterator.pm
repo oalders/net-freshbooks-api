@@ -74,6 +74,8 @@ __PACKAGE__->meta->make_immutable( inline_constructor => 0 );
 
 1;
 
+# ABSTRACT: FreshBooks Iterator objects
+
 =pod
 
 =head2 new

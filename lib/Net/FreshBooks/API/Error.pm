@@ -27,6 +27,8 @@ sub handle_server_error {
 
 1;
 
+# ABSTRACT: FreshBooks error handling (experimental)
+
 =pod
 
 =head1 SYNOPSIS

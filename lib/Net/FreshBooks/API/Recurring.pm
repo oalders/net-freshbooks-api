@@ -58,9 +58,9 @@ __PACKAGE__->meta->make_immutable();
 
 1;
 
-=head1 NAME
+# ABSTRACT: FreshBooks Recurring Item access
 
-Net::FreshBooks::API::Recurring - FreshBooks Recurring Items
+=pod
 
 =head1 SYNOPSIS
 

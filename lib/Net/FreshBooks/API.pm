@@ -16,6 +16,7 @@ use Net::FreshBooks::API::Estimate;
 use Net::FreshBooks::API::Gateway;
 use Net::FreshBooks::API::Invoice;
 use Net::FreshBooks::API::OAuth;
+use Net::FreshBooks::API::Language;
 use Net::FreshBooks::API::Payment;
 use Net::FreshBooks::API::Recurring;
 use Path::Class;
@@ -88,6 +89,10 @@ sub gateway {
 
 sub invoice {
     return shift->_create_object( 'Invoice', @_ );
+}
+
+sub language {
+    return shift->_create_object( 'Language', @_ );
 }
 
 sub payment {
@@ -373,6 +378,10 @@ Creates and returns a new L<Net::FreshBooks::API::Estimate> object.
 =head2 invoice
 
 Creates and returns a new L<Net::FreshBooks::API::Invoice> object.
+
+=head2 language
+
+Creates and returns a new L<Net::FreshBooks::API::Language> object.
 
 =head2 payment
 

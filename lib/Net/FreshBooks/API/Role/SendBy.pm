@@ -37,6 +37,8 @@ sub _send_using {
 
 1;
 
+# ABSTRACT: Send by email and snail mail roles
+
 =pod
 
 =head1 SYNOPSIS

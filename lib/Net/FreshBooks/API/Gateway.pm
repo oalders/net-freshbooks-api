@@ -22,6 +22,8 @@ __PACKAGE__->meta->make_immutable();
 
 1;
 
+# ABSTRACT: List gateways available in your FreshBooks account
+
 =pod
 
 =head1 DESCRIPTION

@@ -21,6 +21,8 @@ __PACKAGE__->meta->make_immutable();
 
 1;
 
+# ABSTRACT: Provides FreshBooks Link objects to Clients and Invoices
+
 =pod
 
 =head1 DESCRIPTION

@@ -79,6 +79,8 @@ sub delete {    ## no critic
 
 1;
 
+# ABSTRACT: Create, Read and Update roles
+
 =pod
 
 =head1 SYNOPSIS

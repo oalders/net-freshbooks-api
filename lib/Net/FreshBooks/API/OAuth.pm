@@ -198,7 +198,9 @@ sub _make_request {
     return $response;
 }
 
-##############################################################################
+# ABSTRACT: FreshBooks OAuth implementation
+
+=pod
 
 =head2 DESCRIPTION
 

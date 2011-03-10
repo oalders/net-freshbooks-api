@@ -58,6 +58,10 @@ __PACKAGE__->meta->make_immutable();
 
 1;
 
+# ABSTRACT: FreshBooks Estimate access
+
+=pod
+
 =head1 DESCRIPTION
 
 This class gives you access to FreshBooks invoice information.

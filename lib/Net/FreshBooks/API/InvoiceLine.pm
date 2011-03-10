@@ -29,3 +29,5 @@ sub _fields {
 __PACKAGE__->meta->make_immutable();
 
 1;
+
+# ABSTRACT: Adds Line Item support to FreshBooks Invoices

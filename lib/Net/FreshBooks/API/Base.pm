@@ -337,6 +337,10 @@ __PACKAGE__->meta->make_immutable( inline_constructor => 1 );
 
 1;
 
+# ABSTRACT: Base class
+
+=pod
+
 =head2 new_from_node
 
   my $new_object = $class->new_from_node( $node );

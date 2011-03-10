@@ -18,6 +18,8 @@ sub add_line {
 
 1;
 
+# ABSTRACT: Line Item roles
+
 =pod
 
 =head1 SYNOPSIS

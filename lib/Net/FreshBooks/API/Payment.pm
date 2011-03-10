@@ -29,6 +29,10 @@ __PACKAGE__->meta->make_immutable();
 
 1;
 
+# ABSTRACT: FreshBooks Payment access
+
+=pod
+
 =head1 DESCRIPTION
 
 This class gives you object to FreshBooks payment information.

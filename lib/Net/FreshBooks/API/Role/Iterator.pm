@@ -65,6 +65,8 @@ sub list {
 
 1;
 
+# ABSTRACT: Read-only roles
+
 =pod
 
 =head1 SYNOPSIS
