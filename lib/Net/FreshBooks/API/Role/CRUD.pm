@@ -24,15 +24,17 @@ sub create {
     delete $create_args{$_}    #
         for grep { !defined $create_args{$_} }
         keys %create_args;
-        
+
     my $fields = $self->_fields;
-        
+
     foreach my $key ( keys %create_args ) {
-        if ( $fields->{$key}->{presented_as} eq 'object') {
+        if ( exists $fields->{$key}->{presented_as}
+            && $fields->{$key}->{presented_as} eq 'object' )
+        {
             delete $create_args{$key} if !$create_args{$key}->_validates;
         }
     }
-        
+
     my $res = $self->send_request(
         {   _method         => $method,
             $self->api_name => \%create_args,
@@ -59,7 +61,8 @@ sub update {
     my %args = ();
     for my $field ( $self->field_names_rw, $self->id_field ) {
         next
-            if ( $fields->{$field}->{presented_as} eq 'object'
+            if ( exists $fields->{$field}->{presented_as}
+            && $fields->{$field}->{presented_as} eq 'object'
             && !$self->$field->_validates );
         $args{$field} = $self->$field;
     }
@@ -74,8 +77,6 @@ sub update {
 
     return $self;
 }
-
-
 
 sub delete {    ## no critic
     ## use critic
