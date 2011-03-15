@@ -9,11 +9,12 @@ use Moose;
 use Carp qw( carp croak );
 use Clone qw(clone);
 use Data::Dump qw( dump );
-use Net::FreshBooks::API::Error;
+use Scalar::Util qw( blessed reftype );
 use XML::LibXML ':libxml';
 use XML::Simple;
 use LWP::UserAgent;
 
+use Net::FreshBooks::API::Error;
 use Net::FreshBooks::API::Iterator;
 
 my %plural_to_singular = (
@@ -24,7 +25,8 @@ my %plural_to_singular = (
     nesteds  => 'nested',    # for testing
 );
 
-has 'error' => ( is => 'rw', isa => 'Net::FreshBooks::API::Error', lazy_build => 1 );
+has 'error' =>
+    ( is => 'rw', isa => 'Net::FreshBooks::API::Error', lazy_build => 1 );
 
 has '_fb'                 => ( is => 'rw' );
 has '_sent_xml'           => ( is => 'rw' );
@@ -44,17 +46,19 @@ sub copy {
     return $class->new( { _fb => $self->_fb } );
 }
 
+# this method is called recursively as it works its way through the XML
+# elements
+
 sub _fill_in_from_node {
     my $self    = shift;
-    my $in_node = shift;
-
+    my $in_node = shift;    # XML::LibXML::Element
+    
     # parse it as a new node so that the matching is more reliable
     my $parser = XML::LibXML->new();
     my $node   = $parser->parse_string( $in_node->toString );
 
-    # cleanup all the keys
-    delete $self->{$_}    #
-        for grep { !m/^_/x } keys %$self;
+    # clean up all the keys
+    delete $self->{$_} for grep { !m/^_/x } keys %$self;
 
     my $fields_config = $self->_fields;
 
@@ -64,27 +68,48 @@ sub _fill_in_from_node {
         my $xpath .= sprintf "//%s/%s", $self->node_name, $key;
 
         # check that this field is not a special one
-        if ( my $made_of = $fields_config->{$key}{made_of} ) {
+        if ( my $class = $fields_config->{$key}{made_of} ) {
 
             my ( $match ) = $node->findnodes( $xpath );
 
             # avoid this error: Can't call method "childNodes" on an undefined
-            # value at /tmp/net-freshbooks-api/lib/Net/FreshBooks/API/Base.pm
+            # value at Net/FreshBooks/API/Base.pm
             # line 174
             next if !$match;
-
             if ( $fields_config->{$key}{presented_as} eq 'array' ) {
 
-                my @new_objects =    #
-                    map { $made_of->new_from_node( $_ ) }    #
+                my @new_objects = 
+                    map { $class->new_from_node( $_ ) } 
                     grep { $_->nodeType eq XML_ELEMENT_NODE }
                     $match->childNodes();
-                    $self->{$key} = \@new_objects;
+                $self->{$key} = \@new_objects;
+            }
+            
+            elsif ( $fields_config->{$key}{presented_as} eq 'object' ) {
+
+                my $inflated    = $class->new;
+                my $f           = $inflated->_fields;
+    
+                # convert XML to HASHREF as it's easier to work with 
+                my $node_as_ref = XMLin( $match->toString );
+
+                foreach my $field ( keys %{$f} ) {
+
+                    if ( exists $f->{$field}->{made_of} ) {
+                        my $new_class = $f->{$field}->{made_of};
+                        my $obj      = $new_class->new_from_node( $match );
+                        $inflated->$field( $obj );                        
+                    }
+                    else {
+                        $inflated->$field( $node_as_ref->{$field} );
+                    }
+                }
+                $self->{$key} = $inflated;
             }
             else {
-                $self->{$key}                                #
-                    = $match                                 #
-                    ? $made_of->new_from_node( $match )      #
+                $self->{$key}                            #
+                    = $match                             #
+                    ? $class->new_from_node( $match )    #
                     : undef;
             }
 
@@ -98,6 +123,7 @@ sub _fill_in_from_node {
     return $self;
 
 }
+
 
 sub send_request {
     my $self = shift;
@@ -226,7 +252,7 @@ sub construct_element {
                 $self->construct_element( $entry_node, $entry_val );
             }
         }
-        elsif ( ref $val eq 'HASH' ) {
+        elsif ( ref $val eq 'HASH' || ( $val && blessed $val ) ) {
             my $wrapper = XML::LibXML::Element->new( $key );
             $element->addChild( $wrapper );
 
@@ -321,17 +347,18 @@ sub _frequency_cleanup {
     my $self = shift;
 
     return {
-        y    => 'yearly',
-        w    => 'weekly',
+        'y'  => 'yearly',
+        'w'  => 'weekly',
         '2w' => '2 weeks',
         '4w' => '4 weeks',
-        m    => 'monthly',
+        'm'  => 'monthly',
         '2m' => '2 months',
         '3m' => '3 months',
         '6m' => '6 months',
     };
 
 }
+
 
 __PACKAGE__->meta->make_immutable( inline_constructor => 1 );
 
@@ -357,9 +384,9 @@ Returns a new object with the fb object set on it.
 
   my $new_object = $self->create( \%args );
 
-Create a new object. Takes the arguments and use them to create a new entry at
-the FreshBooks end. Once the object has been created a 'get' request is issued
-to fetch the data back from freshboks and to populate the object.
+Create a new object. Takes the arguments and uses them to create a new entry
+at the FreshBooks end. Once the object has been created a 'get' request is
+issued to fetch the data back from FreshBooks and to populate the object.
 
 =head2 update
 
@@ -393,8 +420,8 @@ Delete the given object.
 
   my $response_data = $self->send_request( $args );
 
-Turn the args into xml, send it to FreshBooks, recieve back the XML and
-convert it back into a perl data structure.
+Turn the args into xml, send it to FreshBooks, receive back the XML and
+convert it back into a Perl data structure.
 
 
 =head2 method_string
@@ -441,10 +468,10 @@ Return the names of all the fields that are marked as read and write.
   my $xml = $self->parameters_to_request_xml( \%parameters );
 
 Takes the parameters given and turns them into the xml that should be sent to
-the server. This has some smarts that works around the tedium of processing perl
-datastructures -> XML. In particular any key starting with an underscore becomes
-an attribute. Any key pointing to an array is wrapped so that it appears
-correctly in the XML.
+the server. This has some smarts that works around the tedium of processing
+Perl datastructures -> XML. In particular any key starting with an underscore
+becomes an attribute. Any key pointing to an array is wrapped so that it
+appears correctly in the XML.
 
 =head2 construct_element( $element, $hashref )
 
@@ -455,15 +482,15 @@ text nodes, nested values or child elements or some combination thereof.
 
   my $params = $self->response_xml_to_node( $xml );
 
-Take XML from FB and turn it into a datastructure that is easier to work with.
+Take XML from FB and turn it into a data structure that is easier to work with.
 
 
 =head2 send_xml_to_freshbooks
 
   my $returned_xml = $self->send_xml_to_freshbooks( $xml_to_send );
 
-Sends the xml to the FreshBooks API and returns the XML content returned. This
-is the lowest part and is encapsulated here so that it can be easily overridden
-for testing.
+Sends the XML to the FreshBooks API and returns the XML content returned. This
+is the lowest part and is encapsulated here so that it can be easily
+overridden for testing.
 
 =cut

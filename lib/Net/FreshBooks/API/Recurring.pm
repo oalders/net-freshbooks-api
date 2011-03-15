@@ -8,7 +8,20 @@ extends 'Net::FreshBooks::API::Base';
 with 'Net::FreshBooks::API::Role::CRUD';
 with 'Net::FreshBooks::API::Role::LineItem';
 
-has $_ => ( is => _fields()->{$_}->{is} ) for sort keys %{ _fields() };
+for ( sort keys %{ _fields() } ) {
+    has $_ => ( is => _fields()->{$_}->{is} ) if $_ ne 'autobill';
+}
+
+has 'autobill' => (
+    is      => 'rw',
+    builder => '_build_autobill',
+);
+
+sub _build_autobill {
+
+    my $self = shift;
+    return Net::FreshBooks::API::AutoBill->new;
+}
 
 sub _fields {
 
@@ -38,7 +51,11 @@ sub _fields {
 
         # custom fields
         # autobill will need to be an object similar to InvoiceLine
-        #autobill        => { ... },
+        autobill => {
+            is           => 'rw',
+            made_of      => 'Net::FreshBooks::API::AutoBill',
+            presented_as => 'object',
+        },
         frequency => { is => 'rw' },
         lines     => {
             is           => 'rw',
@@ -130,6 +147,19 @@ __PACKAGE__->meta->make_immutable();
 
     # or more quickly
     $referring->update( { organization => 'Perl Foundation', } );
+    
+=head2 autobill
+
+Returns a L<Net::FreshBooks::API::AutoBill> object
+
+    my $autobill = $recurring_item->autobill;
+    $autobill->gateway_name('PayPal Payflow Pro');
+    $autobill->card->name('Tim Toady');
+    $autobill->card->number('4111 1111 1111 1111');
+    $autobill->card->expiration->month(12);
+    $autobill->card->expiration->year(2015);
+    
+    $recurring_item->create;
 
 =head2 list
 
