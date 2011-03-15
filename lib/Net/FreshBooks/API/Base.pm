@@ -220,6 +220,7 @@ sub construct_element {
 
     foreach my $key ( sort keys %$hashref ) {
         my $val = $hashref->{$key};
+        print "constructing $key\n";
 
         # avoid "Unknown currency" API error
         next if $key eq 'currency_code' && !$val;

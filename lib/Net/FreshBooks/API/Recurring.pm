@@ -8,6 +8,8 @@ extends 'Net::FreshBooks::API::Base';
 with 'Net::FreshBooks::API::Role::CRUD';
 with 'Net::FreshBooks::API::Role::LineItem';
 
+use Net::FreshBooks::API::Recurring::AutoBill;
+
 for ( sort keys %{ _fields() } ) {
     has $_ => ( is => _fields()->{$_}->{is} ) if $_ ne 'autobill';
 }
@@ -20,7 +22,7 @@ has 'autobill' => (
 sub _build_autobill {
 
     my $self = shift;
-    return Net::FreshBooks::API::AutoBill->new;
+    return Net::FreshBooks::API::Recurring::AutoBill->new;
 }
 
 sub _fields {
@@ -53,7 +55,7 @@ sub _fields {
         # autobill will need to be an object similar to InvoiceLine
         autobill => {
             is           => 'rw',
-            made_of      => 'Net::FreshBooks::API::AutoBill',
+            made_of      => 'Net::FreshBooks::API::Recurring::AutoBill',
             presented_as => 'object',
         },
         frequency => { is => 'rw' },
@@ -150,7 +152,7 @@ __PACKAGE__->meta->make_immutable();
     
 =head2 autobill
 
-Returns a L<Net::FreshBooks::API::AutoBill> object
+Returns a L<Net::FreshBooks::API::Recurring::AutoBill> object
 
     my $autobill = $recurring_item->autobill;
     $autobill->gateway_name('PayPal Payflow Pro');

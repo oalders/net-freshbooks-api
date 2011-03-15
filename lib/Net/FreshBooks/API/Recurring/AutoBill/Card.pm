@@ -1,14 +1,16 @@
-package Net::FreshBooks::API::AutoBill::Card;
+package Net::FreshBooks::API::Recurring::AutoBill::Card;
 
 use Moose;
 extends 'Net::FreshBooks::API::Base';
 
-use Net::FreshBooks::API::AutoBill::Card::Expiration;
+use Net::FreshBooks::API::Recurring::AutoBill::Card::Expiration;
 
 has 'expiration' => (
-    is => 'rw',
-    default =>
-        sub { return Net::FreshBooks::API::AutoBill::Card::Expiration->new },
+    is      => 'rw',
+    default => sub {
+        return
+            Net::FreshBooks::API::Recurring::AutoBill::Card::Expiration->new;
+    },
     handles => [ 'month', 'year' ],
 );
 
@@ -23,11 +25,21 @@ sub _fields {
         number     => { is => 'rw' },
         name       => { is => 'rw' },
         expiration => {
-            is      => 'rw',
-            made_of => 'Net::FreshBooks::API::AutoBill::Card::Expiration',
+            is => 'rw',
+            made_of =>
+                'Net::FreshBooks::API::Recurring::AutoBill::Card::Expiration',
             presented_as => 'object',
         },
     };
+}
+
+# make sure unitialized objects don't make the cut
+sub _validates {
+
+    my $self = shift;
+
+    return ( $self->name && $self->number );
+
 }
 
 __PACKAGE__->meta->make_immutable();
@@ -40,7 +52,7 @@ __PACKAGE__->meta->make_immutable();
 
 =head2 expiration
 
-Returns an Net::FreshBooks::API::AutoBill::Card::Expiration object
+Returns an Net::FreshBooks::API::Recurring::AutoBill::Card::Expiration object
 
 =head2 name
 
@@ -56,7 +68,7 @@ punctuation marks.
 =head2 month
 
 The card's 2 digit expiration month. This is a shortcut to the
-Net::FreshBooks::API::AutoBill::Card::Expiration object.
+Net::FreshBooks::API::Recurring::AutoBill::Card::Expiration object.
 
     $recurring->autobill->card->month;
     
@@ -66,7 +78,7 @@ Net::FreshBooks::API::AutoBill::Card::Expiration object.
 =head2 year
 
 The card's 4 digit expiration year. This is a shortcut to the
-Net::FreshBooks::API::AutoBill::Card::Expiration object.
+Net::FreshBooks::API::Recurring::AutoBill::Card::Expiration object.
 
     $recurring->autobill->card->year;
     
