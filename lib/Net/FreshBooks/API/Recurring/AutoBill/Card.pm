@@ -7,10 +7,7 @@ use Net::FreshBooks::API::Recurring::AutoBill::Card::Expiration;
 
 has 'expiration' => (
     is      => 'rw',
-    default => sub {
-        return
-            Net::FreshBooks::API::Recurring::AutoBill::Card::Expiration->new;
-    },
+    lazy_build => 1,
     handles => [ 'month', 'year' ],
 );
 
@@ -40,6 +37,12 @@ sub _validates {
 
     return ( $self->name && $self->number );
 
+}
+
+sub _build_expiration {
+    
+    my $self = shift;
+    return Net::FreshBooks::API::Recurring::AutoBill::Card::Expiration->new;
 }
 
 __PACKAGE__->meta->make_immutable();
