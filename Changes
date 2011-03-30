@@ -1,7 +1,8 @@
 Revision history for Perl module Net::FreshBooks::API
 
-0.20 2011-03-??
+0.20 2011-03-30
     - Adds support for Language and Gateway
+    - Adds AutoBill to Recurring Items
 
 0.19 2011-01-17
     - Removes warn statement left over from debugging

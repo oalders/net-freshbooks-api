@@ -375,6 +375,10 @@ Returns a L<Net::FreshBooks::API::Client> object.
 
 Creates and returns a new L<Net::FreshBooks::API::Estimate> object.
 
+=head2 gateway
+
+Creates and returns a new L<Net::FreshBooks::API::Gateway> object.
+
 =head2 invoice
 
 Creates and returns a new L<Net::FreshBooks::API::Invoice> object.

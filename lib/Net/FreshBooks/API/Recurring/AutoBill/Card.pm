@@ -1,3 +1,6 @@
+use strict;
+use warnings;
+
 package Net::FreshBooks::API::Recurring::AutoBill::Card;
 
 use Moose;
