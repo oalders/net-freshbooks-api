@@ -291,7 +291,7 @@ sub response_xml_to_node {
         my $msg = XMLin( $xml );
         warn $self->_sent_xml;
         my $error = "FreshBooks server returned error: '$msg->{error}'";
-        $self->handle_server_error( $error );
+        $self->_handle_server_error( $error );
     }
     else {
         $self->last_server_error( undef );
@@ -334,7 +334,7 @@ sub send_xml_to_freshbooks {
 
     if ( !$response->is_success ) {
         croak "FreshBooks request failed: " . $response->status_line;
-        $self->handle_server_error(
+        $self->_handle_server_error(
             "FreshBooks request failed: " . $response->status_line );
     }
 

@@ -17,7 +17,7 @@ has '_request_xml' => ( is => 'rw', isa => 'Str' );
 sub _build_die_on_server_error { return 1; }
 sub _build_verbose             { return 0; }
 
-sub handle_server_error {
+sub _handle_server_error {
 
     my $self = shift;
     my $msg  = shift;
