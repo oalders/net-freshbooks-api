@@ -25,6 +25,7 @@ my $fb = Net::FreshBooks::API->new(
 );
 ok $fb, "created the FB object";
 
+
 $fb->delete_everything_from_this_test_account();
 
 # create a new client
@@ -94,6 +95,8 @@ $mech->content_lacks( ' this is the test line ',
 # send the invoice so that it is available
 ok $invoice->send_by_email, "Send the invoice";
 
+diag( "verbose: " . $fb->verbose );
+
 # Check that the invoice is now viewable
 is $invoice->status, 'sent', "invoice status is 'sent'";
 $mech->get_ok( $invoice->links->client_view );
@@ -113,7 +116,7 @@ throws_ok {
 qr/Payment from credit cannot exceed available credit/, 'error msg parsed';
 
 my $payment = $fb->payment;
-$payment->error->die_on_server_error( 0 );
+$payment->die_on_server_error( 0 );
 
 lives_ok {
     $payment->create(

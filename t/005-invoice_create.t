@@ -2,7 +2,7 @@
 
 use strict;
 use Data::Dump qw( dump );
-use Test::More tests => 18;
+use Test::More;
 use File::Slurp;
 use Sub::Override;
 use Test::XML;
@@ -80,10 +80,9 @@ is $invoice->links->client_view,
     'https://hinuhinutest.freshbooks.com/inv/106252-2-80cad',
     "client_view correct";
     
-can_ok( $invoice, 'error');
-ok( $invoice->error->die_on_server_error, "invoice will die");
+ok( $invoice->die_on_server_error, "invoice will die");
 
-ok ( $invoice->error, "will die on errors");
+$invoice->die_on_server_error(0);
+ok (!$invoice->die_on_server_error, "die on error turned off");
 
-$invoice->error->die_on_server_error(0);
-ok (!$invoice->error->die_on_server_error, "die on error turned off");
+done_testing();

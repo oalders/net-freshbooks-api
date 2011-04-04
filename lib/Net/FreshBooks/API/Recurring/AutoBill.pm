@@ -19,17 +19,36 @@ has 'card' => (
 
 sub node_name { return 'autobill' }
 
-# make sure unitialized objects don't make the cut
+# ensure only fully initialized objects make the cut
+
+# Due to the way this module works, when recurring items are updated, all
+# mutable fields already in the object are passed back to FreshBooks. This
+# causes a problem with the following scenario:
+#
+# 1) A recurring item is fetched from FreshBooks
+# 2) The card number field returned by FreshBooks will look something like **** **** **** 1111
+# 3) When an update request is sent to FreshBooks, the request will fail on an invalid number
+#
+# So, to protect the user from this condition, if a card number in the
+# recurring item contains a '*', the AutoBill fields won't be passed for
+# updating. In most cases this is probably the behaviour which you want as it
+# prevents you from having to set autobill to an empty string on the update of
+# any recurring item.
+
+# this method returns true if any one of the autobill params is non-empty,
+# provided that the card number is not the one returned to us by FreshBooks
+
 sub _validates {
 
     my $self = shift;
 
+    return 0 if $self->card->number && $self->card->number =~ m{\*};
+
     return
-           $self->gateway_name
-        && $self->card->name
-        && $self->card->number
-        && $self->card->month
-        && $self->card->year;
+        || $self->gateway_name
+        || $self->card->name
+        || $self->card->month
+        || $self->card->year;
 
 }
 
@@ -102,4 +121,26 @@ Returns a Net::FreshBooks::API::Recurring::AutoBill::Card object
     $autobill->card->month(12);
     $autobill->card->year(2015);
     
+=head1 CAVEATS
+
+To delete a recurring item's autobill status, autobill should explicitly be
+set to an empty string. This will send an empty autobill element to
+FreshBooks, which is the correct syntax for deleting existing autobill info.
+This only makes sense in the context of an update.  If you are creating a new
+recurring item without autobill, just don't touch the AutoBill object and it
+will "do the right thing".
+
+    $recurring_item->autobill( '' ); # delete an autobill profile
+    $recurring_item->update;
+    
+If you are updating autobill for a recurring item, you must update the credit
+card number, or the request will fail. This is because, while FreshBooks
+requires all autobill elements to be present, FreshBooks returns only the last
+4 digits of the card number when the item is fetched.  So, the only way to
+establish the actual card number is for you to provide it.
+
+    my $item = $freshbooks->recurring_item->get({ recurring_id => $id });
+    $item->autobill->card->number( $new_number );
+    $item->update;
+
 =cut

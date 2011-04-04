@@ -5,6 +5,7 @@ package Net::FreshBooks::API::Role::LineItem;
 
 use Moose::Role;
 use Net::FreshBooks::API::InvoiceLine;
+use Data::Dump qw( dump );
 
 sub add_line {
     my $self      = shift;

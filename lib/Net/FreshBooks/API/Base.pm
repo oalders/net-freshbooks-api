@@ -4,7 +4,8 @@ use warnings;
 package Net::FreshBooks::API::Base;
 
 use Moose;
-#use namespace::autoclean;
+
+with 'Net::FreshBooks::API::Role::Common';
 
 use Carp qw( carp croak );
 use Clone qw(clone);
@@ -14,7 +15,6 @@ use XML::LibXML ':libxml';
 use XML::Simple;
 use LWP::UserAgent;
 
-use Net::FreshBooks::API::Error;
 use Net::FreshBooks::API::Iterator;
 
 my %plural_to_singular = (
@@ -25,11 +25,8 @@ my %plural_to_singular = (
     nesteds  => 'nested',    # for testing
 );
 
-has 'error' =>
-    ( is => 'rw', isa => 'Net::FreshBooks::API::Error', lazy_build => 1 );
-
-has '_fb'                 => ( is => 'rw' );
-has '_sent_xml'           => ( is => 'rw' );
+has '_fb' => ( is => 'rw', required => 0 );
+has '_sent_xml' => ( is => 'rw' );
 
 sub new_from_node {
     my $class = shift;
@@ -43,7 +40,7 @@ sub new_from_node {
 sub copy {
     my $self  = shift;
     my $class = ref $self;
-    return $class->new( { _fb => $self->_fb } );
+    return $class->new( _fb => $self->_fb );
 }
 
 # this method is called recursively as it works its way through the XML
@@ -52,7 +49,7 @@ sub copy {
 sub _fill_in_from_node {
     my $self    = shift;
     my $in_node = shift;    # XML::LibXML::Element
-    
+
     # parse it as a new node so that the matching is more reliable
     my $parser = XML::LibXML->new();
     my $node   = $parser->parse_string( $in_node->toString );
@@ -78,27 +75,26 @@ sub _fill_in_from_node {
             next if !$match;
             if ( $fields_config->{$key}{presented_as} eq 'array' ) {
 
-                my @new_objects = 
-                    map { $class->new_from_node( $_ ) } 
+                my @new_objects = map { $class->new_from_node( $_ ) }
                     grep { $_->nodeType eq XML_ELEMENT_NODE }
                     $match->childNodes();
                 $self->{$key} = \@new_objects;
             }
-            
+
             elsif ( $fields_config->{$key}{presented_as} eq 'object' ) {
 
-                my $inflated    = $class->new;
-                my $f           = $inflated->_fields;
-    
-                # convert XML to HASHREF as it's easier to work with 
+                my $inflated = $class->new;
+                my $f        = $inflated->_fields;
+
+                # convert XML to HASHREF as it's easier to work with
                 my $node_as_ref = XMLin( $match->toString );
 
                 foreach my $field ( keys %{$f} ) {
 
                     if ( exists $f->{$field}->{made_of} ) {
                         my $new_class = $f->{$field}->{made_of};
-                        my $obj      = $new_class->new_from_node( $match );
-                        $inflated->$field( $obj );                        
+                        my $obj       = $new_class->new_from_node( $match );
+                        $inflated->$field( $obj );
                     }
                     else {
                         $inflated->$field( $node_as_ref->{$field} );
@@ -124,35 +120,33 @@ sub _fill_in_from_node {
 
 }
 
-
 sub send_request {
     my $self = shift;
     my $args = shift;
-    
-    my $fb     = $self->_fb;
+
     my $method = $args->{_method};
 
     my %frequency_fix = %{ $self->_frequency_cleanup };
 
     my $pattern = join "|", keys %frequency_fix;
 
-    $fb->_log( debug => "Sending request for $method" );
+    $self->_log( debug => "Sending request for $method" );
 
     my $request_xml = $self->parameters_to_request_xml( $args );
-
     $request_xml
         =~ s{<frequency>($pattern)</frequency>}{<frequency>$frequency_fix{$1}</frequency>}gxms;
 
-    $fb->_log( debug => $request_xml );
+    $self->_log( debug => $request_xml );
+    $self->_request_xml( $request_xml );
 
     my $return_xml = $self->send_xml_to_freshbooks( $request_xml );
 
-    $fb->_log( debug => $return_xml );
-    $self->{'__return_xml'} = $return_xml;
+    $self->_log( debug => $return_xml );
+    $self->_return_xml( $return_xml );
 
     my $response_node = $self->response_xml_to_node( $return_xml );
 
-    $fb->_log( debug => "Received response for $method" );
+    $self->_log( debug => "Received response for $method" );
 
     return $response_node;
 }
@@ -200,7 +194,7 @@ sub field_names_rw {
 
 sub parameters_to_request_xml {
     my $self       = shift;
-    my $params = shift;
+    my $params     = shift;
     my $parameters = clone( $params );
 
     my $dom = XML::LibXML::Document->new( '1.0', 'utf-8' );
@@ -249,13 +243,28 @@ sub construct_element {
             foreach my $entry_val ( @$val ) {
                 my $entry_node = XML::LibXML::Element->new( $singular_key );
                 $wrapper->addChild( $entry_node );
+
+                # LineItems were including methods from Role/Common
+                my $class = blessed $entry_val;
+
+                if ( $class ) {
+                    my $new_entry = {};
+                    my $fields    = $class->_fields;
+
+                    foreach my $key ( keys %{$fields} ) {
+                        $new_entry->{$key} = $entry_val->$key
+                            if $entry_val->$key;
+                    }
+
+                    $entry_val = $new_entry;
+                }
+
                 $self->construct_element( $entry_node, $entry_val );
             }
         }
         elsif ( ref $val eq 'HASH' || ( $val && blessed $val ) ) {
             my $wrapper = XML::LibXML::Element->new( $key );
             $element->addChild( $wrapper );
-
             $self->construct_element( $wrapper, $val );
 
         }
@@ -280,11 +289,12 @@ sub response_xml_to_node {
 
     if ( $response_status ne 'ok' ) {
         my $msg = XMLin( $xml );
+        warn $self->_sent_xml;
         my $error = "FreshBooks server returned error: '$msg->{error}'";
-        $self->error->handle_server_error( $error );
+        $self->handle_server_error( $error );
     }
     else {
-        $self->error->last_server_error( undef );
+        $self->last_server_error( undef );
     }
 
     return $response;
@@ -294,15 +304,16 @@ sub send_xml_to_freshbooks {
 
     my $self        = shift;
     my $xml_to_send = shift;
-    my $fb          = $self->_fb;
-    my $ua          = $fb->ua;
-    my $response    = undef;
+
+    my $fb       = $self->_fb;
+    my $response = undef;
     $self->_sent_xml( $xml_to_send );
 
     if ( $fb->auth_token ) {
 
-        $fb->_log( debug => "Not using OAuth" );
+        $self->_log( debug => "Not using OAuth" );
 
+        my $ua      = $fb->ua;
         my $request = HTTP::Request->new(
             'POST',              # method
             $fb->service_url,    # url
@@ -314,7 +325,7 @@ sub send_xml_to_freshbooks {
     }
     else {
 
-        $fb->_log( debug => "using OAuth" );
+        $self->_log( debug => "using OAuth" );
 
         $response = $fb->oauth->restricted_request( $fb->service_url,
             $xml_to_send );
@@ -323,19 +334,11 @@ sub send_xml_to_freshbooks {
 
     if ( !$response->is_success ) {
         croak "FreshBooks request failed: " . $response->status_line;
-        $self->error->handle_server_error( "FreshBooks request failed: " . $response->status_line );
+        $self->handle_server_error(
+            "FreshBooks request failed: " . $response->status_line );
     }
 
     return $response->content;
-}
-
-sub _build_error {
-    
-    my $self = shift;
-    my $error = Net::FreshBooks::API::Error->new;
-    return $error;
-    
-    
 }
 
 # When FreshBooks returns info on recurring items, it does not return the same
@@ -358,7 +361,6 @@ sub _frequency_cleanup {
     };
 
 }
-
 
 __PACKAGE__->meta->make_immutable( inline_constructor => 1 );
 

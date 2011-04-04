@@ -4,6 +4,8 @@ use warnings;
 package Net::FreshBooks::API;
 use Moose;
 
+with 'Net::FreshBooks::API::Role::Common';
+
 #use namespace::autoclean;
 
 use Carp qw( carp croak );
@@ -11,7 +13,6 @@ use Data::Dump qw( dump );
 
 #use Devel::SimpleTrace;
 use Net::FreshBooks::API::Client;
-use Net::FreshBooks::API::Error;
 use Net::FreshBooks::API::Estimate;
 use Net::FreshBooks::API::Gateway;
 use Net::FreshBooks::API::Invoice;
@@ -29,26 +30,12 @@ has 'api_version'         => ( is => 'rw', default => 2.1 );
 has 'auth_realm'          => ( is => 'rw', default => 'FreshBooks' );
 has 'ua'                  => ( is => 'rw', lazy_build => 1 );
 has 'ua_name'             => ( is => 'rw', lazy_build => 1 );
-has 'verbose'             => ( is => 'rw', default => 0 );
 
 # oauth methods
 has 'access_token'        => ( is => 'rw' );
 has 'access_token_secret' => ( is => 'rw' );
 has 'consumer_key'        => ( is => 'rw' );
 has 'consumer_secret'     => ( is => 'rw' );
-
-sub _log {    ## no critic
-
-    my $self = shift;
-    return if !$self->verbose;
-
-    my ( $level, $message ) = @_;
-    $message .= "\n" if $message !~ m{\n/z}x;
-    carp "$level: $message";
-
-    return;
-
-}
 
 sub ping {
     my $self = shift;
@@ -109,7 +96,7 @@ sub _create_object {
     my $class = 'Net::FreshBooks::API::' . shift;
 
     my $args = shift || {};
-    my $obj = $class->new( { _fb => $self, %$args } );
+    my $obj = $class->new( _fb => $self, %$args );
 
     return $obj;
 
@@ -134,13 +121,14 @@ sub _build_ua {
         keep_alive        => 10,
     );
 
+    # authenticate with and without realms
     $ua->credentials(    #
         $self->service_url->host_port,    # net loc
         $self->auth_realm,                # realm
         $self->auth_token,                # username
         ''                                # password (none - all in username)
     );
-
+    
     $ua->credentials(                     #
         $self->service_url->host_port,    # net loc
         '',                               # realm (none)
@@ -150,6 +138,7 @@ sub _build_ua {
 
     return $ua;
 }
+
 
 sub delete_everything_from_this_test_account {
 
