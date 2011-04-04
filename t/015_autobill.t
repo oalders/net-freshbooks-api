@@ -3,6 +3,7 @@
 use strict;
 use warnings;
 
+use Data::Dump qw( dump );
 use Test::More;
 
 use Net::FreshBooks::API;
