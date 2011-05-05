@@ -112,7 +112,16 @@ __PACKAGE__->meta->make_immutable();
         tax1_name    => "GST",
         tax1_percent => 5,
     });
-
+    
+    # set up autobill
+    
+    my $autobill = Net::FreshBooks::API::Recurring::AutoBill->new;
+    $autobill->gateway_name('PayPal Payflow Pro');
+    $autobill->card->name('Tim Toady');
+    $autobill->card->number('4111 1111 1111 1111');
+    $autobill->card->expiration->month(12);
+    $autobill->card->expiration->year(2015);
+    
     # use the client object from the previous example
 
     my $recurring_item = $fb->recurring->create({
@@ -120,6 +129,7 @@ __PACKAGE__->meta->make_immutable();
         date        => DateTime->now->add( days => 2 )->ymd, # YYYY-MM-DD
         frequency   => 'monthly',
         lines       => [ $line ],
+        autobill    => $autobill,
         notes       => 'Created by Net::FreshBooks::API',
     });
 
@@ -162,6 +172,12 @@ Returns a L<Net::FreshBooks::API::Recurring::AutoBill> object
     $autobill->card->expiration->year(2015);
     
     $recurring_item->create;
+    
+To delete an autobill profile, just set autobill to an empty string prior
+to update.
+
+    $referring->autobill('');
+    $referring->update;
 
 =head2 list
 
