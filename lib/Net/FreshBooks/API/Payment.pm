@@ -71,6 +71,6 @@ Create a new payment in the FreshBooks system
 Returns a L<Net::FreshBooks::API::Iterator> object.
 
     my $payments = $fb->payment->list;
-    while ( my $payment = $payments->list ) {
+    while ( my $payment = $payments->next ) {
         print $payment->payment_id, "\n";
     }

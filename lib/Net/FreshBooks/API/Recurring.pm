@@ -168,7 +168,7 @@ Returns a L<Net::FreshBooks::API::Recurring::AutoBill> object
 Returns a L<Net::FreshBooks::API::Iterator> object.
 
     my $recurrings = $fb->recurring->list;
-    while ( my $recurring = $recurrings->list ) {
+    while ( my $recurring = $recurrings->next ) {
         print $recurring->recurring_id, "\n";
     }
 

@@ -154,7 +154,7 @@ Returns a L<Net::FreshBooks::API::Iterator> object.
     # list unpaid estimates
     my $estimates = $fb->estimate->list({ status => 'unpaid' });
 
-    while ( my $estimate = $estimates->list ) {
+    while ( my $estimate = $estimates->next ) {
         print $estimate->estimate_id, "\n";
     }
 

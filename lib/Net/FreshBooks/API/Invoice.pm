@@ -114,7 +114,7 @@ Returns a L<Net::FreshBooks::API::Iterator> object.
     # list unpaid invoices
     my $invoices = $fb->invoice->list({ status => 'unpaid' });
 
-    while ( my $invoice = $invoices->list ) {
+    while ( my $invoice = $invoices->next ) {
         print $invoice->invoice_id, "\n";
     }
 
