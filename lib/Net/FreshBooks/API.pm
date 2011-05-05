@@ -97,6 +97,8 @@ sub _create_object {
 
     my $args = shift || {};
     my $obj = $class->new( _fb => $self, %$args );
+    $obj->verbose( $self->verbose );
+    $obj->die_on_server_error( $self->die_on_server_error );
 
     return $obj;
 
