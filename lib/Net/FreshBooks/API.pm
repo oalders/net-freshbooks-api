@@ -514,6 +514,6 @@ Developed for Raybec Communications L<http://www.raybec.com>
 
 L<WWW::FreshBooks::API> - an alternative interface to FreshBooks.
 
-L<http://developers.freshbooks.com/overview/> the FreshBooks API documentation.
+L<http://developers.freshbooks.com> the FreshBooks API documentation.
 
 =cut
