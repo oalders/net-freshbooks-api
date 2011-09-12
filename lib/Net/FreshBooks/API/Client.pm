@@ -12,41 +12,47 @@ has $_ => ( is => _fields()->{$_}->{is} ) for sort keys %{ _fields() };
 sub _fields {
     return {
         client_id     => { is => 'ro' },
-        currency_code => { is => 'rw' },
         first_name    => { is => 'rw' },
         last_name     => { is => 'rw' },
-        language      => { is => 'rw' },
-        notes         => { is => 'rw' },
         organization  => { is => 'rw' },
-        p_city        => { is => 'rw' },
-        p_code        => { is => 'rw' },
-        p_country     => { is => 'rw' },
-        p_state       => { is => 'rw' },
+        email      => { is => 'rw' },
+        username   => { is => 'rw' },
+        work_phone => { is => 'rw' },
+        home_phone => { is => 'rw' },
+        mobile     => { is => 'rw' },
+        fax        => { is => 'rw' },
+        language      => { is => 'rw' },
+        currency_code => { is => 'rw' },
+        credit     => { is => 'ro' },
+        notes         => { is => 'rw' },
+
         p_street1     => { is => 'rw' },
         p_street2     => { is => 'rw' },
-        vat_name      => { is => 'rw' },
-        vat_number    => { is => 'rw' },
+        p_city        => { is => 'rw' },
+        p_state       => { is => 'rw' },
+        p_country     => { is => 'rw' },
+        p_code        => { is => 'rw' },
 
-        # custom fields
-        credit     => { is => 'ro' },
-        email      => { is => 'rw' },
-        fax        => { is => 'rw' },
-        home_phone => { is => 'rw' },
+        s_street1  => { is => 'rw' },
+        s_street2  => { is => 'rw' },
+        s_city     => { is => 'rw' },
+        s_state    => { is => 'rw' },
+        s_country  => { is => 'rw' },
+        s_code     => { is => 'rw' },
+        
         links      => {
             is           => 'ro',
             made_of      => 'Net::FreshBooks::API::Links',
             presented_as => 'single',
         },
-        mobile     => { is => 'rw' },
+        
+        vat_name      => { is => 'rw' },
+        vat_number    => { is => 'rw' },
+        # custom fields
+
         password   => { is => 'rw' },
-        s_city     => { is => 'rw' },
-        s_code     => { is => 'rw' },
-        s_country  => { is => 'rw' },
-        s_state    => { is => 'rw' },
-        s_street1  => { is => 'rw' },
-        s_street2  => { is => 'rw' },
-        username   => { is => 'rw' },
-        work_phone => { is => 'rw' },
+
+
 
         folder     => { is => 'ro' },
 
