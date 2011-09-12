@@ -17,6 +17,11 @@ sub _fields {
         organization  => { is => 'rw' },
         email         => { is => 'rw' },
         username      => { is => 'rw' },
+        contacts => {
+            is           => 'ro',
+            made_of      => 'Net::FreshBooks::API::Client::Contact',
+            presented_as => 'array',
+        },
         password      => { is => 'rw' },
         work_phone    => { is => 'rw' },
         home_phone    => { is => 'rw' },

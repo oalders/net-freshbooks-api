@@ -2,7 +2,7 @@
 
 use strict;
 use Data::Dump qw( dump );
-use Test::More tests => 62;
+use Test::More;
 use File::Slurp;
 use Sub::Override;
 use Test::XML;
@@ -101,3 +101,14 @@ foreach my $key ( $client->field_names ) {
 is $client->links->client_view,
     'https://sample.freshbooks.com/client/12345-1-98969',
     "client_view correct";
+
+my @contacts = $client->contacts;
+
+ok( scalar @contacts, "has contacts" );
+
+foreach my $contact ( @contacts ) {
+    diag( dump $contact );
+    diag( $contact->email );
+}
+
+done_testing();

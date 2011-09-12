@@ -15,7 +15,10 @@ has '_return_xml'  => ( is => 'rw', isa => 'Str' );
 has '_request_xml' => ( is => 'rw', isa => 'Str' );
 
 sub _build_die_on_server_error { return 1; }
-sub _build_verbose             { return 0; }
+sub _build_verbose             {
+    return 1 if $ENV{VERBOSE} || $ENV{DEBUG};
+    return 0;
+}
 
 sub _handle_server_error {
 
