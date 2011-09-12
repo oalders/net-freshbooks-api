@@ -17,6 +17,7 @@ sub _fields {
         organization  => { is => 'rw' },
         email      => { is => 'rw' },
         username   => { is => 'rw' },
+        password   => { is => 'rw' },
         work_phone => { is => 'rw' },
         home_phone => { is => 'rw' },
         mobile     => { is => 'rw' },
@@ -48,13 +49,8 @@ sub _fields {
         
         vat_name      => { is => 'rw' },
         vat_number    => { is => 'rw' },
-        # custom fields
-
-        password   => { is => 'rw' },
-
-
-
-        folder     => { is => 'ro' },
+        folder     => { is => 'rw' },
+        updated    => { is => 'ro' },
 
     };
 }
