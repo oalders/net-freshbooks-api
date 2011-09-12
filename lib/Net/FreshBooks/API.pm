@@ -13,6 +13,7 @@ use Data::Dump qw( dump );
 
 #use Devel::SimpleTrace;
 use Net::FreshBooks::API::Client;
+use Net::FreshBooks::API::Client::Contact;
 use Net::FreshBooks::API::Estimate;
 use Net::FreshBooks::API::Gateway;
 use Net::FreshBooks::API::Invoice;

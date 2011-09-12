@@ -15,8 +15,8 @@ sub _fields {
         first_name  => { is => 'ro' },
         last_name   => { is => 'ro' },
         email   => { is => 'ro' },
-        phone_1   => { is => 'ro' },
-        phone_2   => { is => 'ro' },
+        phone1   => { is => 'ro' },
+        phone2   => { is => 'ro' },
     };
 }
 
