@@ -10,13 +10,13 @@ has $_ => ( is => _fields()->{$_}->{is} ) for sort keys %{ _fields() };
 
 sub _fields {
     return {
-        contact_id  => { is => 'ro' },
-        username    => { is => 'ro' },
-        first_name  => { is => 'ro' },
-        last_name   => { is => 'ro' },
-        email   => { is => 'ro' },
-        phone1   => { is => 'ro' },
-        phone2   => { is => 'ro' },
+        contact_id => { is => 'ro' },
+        username   => { is => 'ro' },
+        first_name => { is => 'ro' },
+        last_name  => { is => 'ro' },
+        email      => { is => 'ro' },
+        phone1     => { is => 'ro' },
+        phone2     => { is => 'ro' },
     };
 }
 
