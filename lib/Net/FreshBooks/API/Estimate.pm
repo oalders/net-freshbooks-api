@@ -160,7 +160,7 @@ Returns a L<Net::FreshBooks::API::Iterator> object.
 
 =head2 lines
 
-Returns an ARRAYREF of Net::FreshBooks::API::InvoiceLine objects
+Returns an ARRAYREF of L<Net::FreshBooks::API::InvoiceLine> objects
 
     foreach my $line ( @{ $estimate->lines } ) {
         print $line->amount, "\n";

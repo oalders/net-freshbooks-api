@@ -4,14 +4,16 @@ use strict;
 use warnings;
 
 use Data::Dump qw( dump );
+use DateTime;
 use Test::More;
 use Test::Exception;
 
 use Net::FreshBooks::API;
+use Net::FreshBooks::API::Client::Contact;
 use Test::WWW::Mechanize;
 
 plan -r 't/config.pl' && require('t/config.pl')
-    ? ( tests => 21 )
+    ? ( tests => 28 )
     : ( skip_all => "Need test connection details in t/config.pl"
         . " - see t/config_sample.pl for details" );
 
@@ -57,6 +59,34 @@ ok $client->update, "update the client";
     is $retrieved_client->organization, 'foobar',
         "Client has been updated on FB";
 }
+
+foreach my $alpha ('a'..'e') {
+    
+    ok( $client->add_contact(
+            {   username   => 'net' . time() . $alpha,
+                first_name => 'Net',
+                last_name  => $alpha,
+                email      => 'net@fake.com',
+                phone1     => 1112223333,
+                phone2     => 4445556666,
+            }
+        ),
+        "can add contact"
+    );
+}
+my $dt = DateTime->now();
+$client->organization( $dt->ymd . '-' . $dt->hms );
+#$client->verbose(1);
+
+ok( $client->update, "can update client" );
+
+my $updated = $fb->client->get({ client_id => $client->client_id });
+
+foreach my $contact (@{$client->contacts}) {
+    diag( $contact->last_name );
+}
+
+cmp_ok( scalar @{$client->contacts}, '==', 5, "5 contacts created");
 
 # create an invoice for this client
 my $return_uri = 'http://www.google.com';

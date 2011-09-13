@@ -19,6 +19,7 @@ use Net::FreshBooks::API::Iterator;
 
 my %plural_to_singular = (
     clients  => 'client',
+    contacts => 'contact',
     invoices => 'invoice',
     lines    => 'line',
     payments => 'payment',

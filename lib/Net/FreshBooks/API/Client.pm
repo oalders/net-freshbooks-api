@@ -18,7 +18,7 @@ sub _fields {
         email         => { is => 'rw' },
         username      => { is => 'rw' },
         contacts => {
-            is           => 'ro',
+            is           => 'rw',
             made_of      => 'Net::FreshBooks::API::Client::Contact',
             presented_as => 'array',
         },
@@ -54,10 +54,17 @@ sub _fields {
 
         vat_name   => { is => 'rw' },
         vat_number => { is => 'rw' },
-        folder     => { is => 'rw' },
+        folder     => { is => 'ro' },
         updated    => { is => 'ro' },
 
     };
+}
+
+sub add_contact {
+    my $self = shift;
+    my $args = shift;
+    push @{ $self->{contacts} ||= [] },
+        Net::FreshBooks::API::Client::Contact->new($args)
 }
 
 __PACKAGE__->meta->make_immutable();
@@ -118,6 +125,14 @@ the update() method, which is described below.
     # fetch a client and then delete it
     my $client = $fb->client->get({ client_id => $client_id });
     $client->delete;
+    
+=head2 contacts
+
+Returns an ARRAYREF of L<Net::FreshBooks::API::Client::Contact> objects
+
+    foreach my $contact ( @{ $client->contacts } ) {
+        print $contact->first_name, "\n";
+    }
 
 =head2 links
 

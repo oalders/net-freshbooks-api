@@ -8,6 +8,8 @@ extends 'Net::FreshBooks::API::Base';
 
 has $_ => ( is => _fields()->{$_}->{is} ) for sort keys %{ _fields() };
 
+sub node_name { return 'contact' };
+
 sub _fields {
     return {
         contact_id => { is => 'ro' },
@@ -19,6 +21,8 @@ sub _fields {
         phone2     => { is => 'ro' },
     };
 }
+
+
 
 __PACKAGE__->meta->make_immutable();
 
