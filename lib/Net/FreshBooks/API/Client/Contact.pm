@@ -28,39 +28,22 @@ __PACKAGE__->meta->make_immutable();
 
 1;
 
-# ABSTRACT: Provides FreshBooks Link objects to Clients and Invoices
+# ABSTRACT: Provides FreshBooks Contact objects to Clients and Invoices
 
 =pod
 
 =head1 DESCRIPTION
 
-The methods on this object all return FreshBooks URLs.
+Objects support the following methods: contact_id, username, first_name,
+last_name, email, phone1 and phone2.
 
 =head1 SYNOPSIS
 
     my $fb = Net::FreshBooks::API->new(...);
-    my $invoice = $fb->invoice->get({ invoice_id => $invoice_id });
-    my $links = $invoice->links;
-
-    print "Send this link to client: " . $links->client_view;
-
     my $client = $fb->client->get({ client_id => $client_id });
-    print "Client view: " . $client->links->client_view;
 
-=head2 client_view
-
-    Provided for invoice, client and estimate links.
-
-=head2 view
-
-    Provided for invoice and client links.
-
-=head2 edit
-
-    Provided for invoice links.
-
-=head2 statement
-
-    Provided for client links.
+    foreach my $contact ( @{$invoice->contacts} ) {
+        print $contact->first_name, "\n";
+    }
 
 =cut
