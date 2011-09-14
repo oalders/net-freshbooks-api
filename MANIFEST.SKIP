@@ -1,4 +1,5 @@
 README.pod
 scripts
 \.kpf$
+\.komodoproject$
 MANIFEST.SKIP
