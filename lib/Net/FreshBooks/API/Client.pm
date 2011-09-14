@@ -11,13 +11,13 @@ has $_ => ( is => _fields()->{$_}->{is} ) for sort keys %{ _fields() };
 
 sub _fields {
     return {
-        client_id     => { is => 'ro' },
-        first_name    => { is => 'rw' },
-        last_name     => { is => 'rw' },
-        organization  => { is => 'rw' },
-        email         => { is => 'rw' },
-        username      => { is => 'rw' },
-        contacts => {
+        client_id    => { is => 'ro' },
+        first_name   => { is => 'rw' },
+        last_name    => { is => 'rw' },
+        organization => { is => 'rw' },
+        email        => { is => 'rw' },
+        username     => { is => 'rw' },
+        contacts     => {
             is           => 'rw',
             made_of      => 'Net::FreshBooks::API::Client::Contact',
             presented_as => 'array',
@@ -64,7 +64,7 @@ sub add_contact {
     my $self = shift;
     my $args = shift;
     push @{ $self->{contacts} ||= [] },
-        Net::FreshBooks::API::Client::Contact->new($args)
+        Net::FreshBooks::API::Client::Contact->new($args);
 }
 
 __PACKAGE__->meta->make_immutable();
@@ -125,7 +125,7 @@ the update() method, which is described below.
     # fetch a client and then delete it
     my $client = $fb->client->get({ client_id => $client_id });
     $client->delete;
-    
+
 =head2 contacts
 
 Returns an ARRAYREF of L<Net::FreshBooks::API::Client::Contact> objects
@@ -133,6 +133,21 @@ Returns an ARRAYREF of L<Net::FreshBooks::API::Client::Contact> objects
     foreach my $contact ( @{ $client->contacts } ) {
         print $contact->first_name, "\n";
     }
+
+=head2 add_contact
+
+Create a new L<Net::FreshBooks::API::Client::Contact> object and add it to the
+end of the list of cotacts.
+
+    my $bool = $client->add_contact(
+        {   username   => 'chucknorris',
+            first_name => 'Chuck',
+            last_name  => 'Norris',
+            email      => 'chuck@norris.com',
+            phone1     => 1112223333,
+            phone2     => 4445556666,
+        }
+    );
 
 =head2 links
 
@@ -159,3 +174,5 @@ all list() functionality defaults to 15 items per page.
 To override the default pagination:
 
     my $clients = $fb->client->list({ page => 2, per_page => 35 });
+
+=cut

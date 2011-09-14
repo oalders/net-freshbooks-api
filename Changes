@@ -1,5 +1,8 @@
 Revision history for Perl module Net::FreshBooks::API
 
+0.22 2011-09-14
+    - Adds support for client contacts
+
 0.21 2011-04-05
     - AutoBill details may now be deleted from Recurring Items
 
@@ -21,7 +24,7 @@ Revision history for Perl module Net::FreshBooks::API
     - API::oauth() method now returns a new object with each call
     - Added API::account_name_ok() for name validation
     - Added Net::FreshBooks::API::Error for exception handling
-    
+
 0.17 2010-11-12
     - Fixed bad test plan
 

@@ -90,7 +90,7 @@ my $invoice = $fb->invoice->create({...});
 
     my $invoice = $fb->invoice->get({ invoice_id => $invoice_id });
     $invoice->delete;
-    
+
 =head2 update
 
     # update after edits
@@ -125,7 +125,7 @@ Returns an ARRAYREF of Net::FreshBooks::API::InvoiceLine objects
     foreach my $line ( @{ $invoice->lines } ) {
         print $line->amount, "\n";
     }
-    
+
 =head2 add_line
 
 Create a new L<Net::FreshBooks::API::InvoiceLine> object and add it to the end

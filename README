@@ -2,7 +2,7 @@ NAME
     Net::FreshBooks::API - Easy OO access to the FreshBooks.com API
 
 VERSION
-    version 0.21
+    version 0.22
 
 SYNOPSIS
         use Net::FreshBooks::API;
@@ -277,8 +277,7 @@ AUTHOR CREDITS
 SEE ALSO
     WWW::FreshBooks::API - an alternative interface to FreshBooks.
 
-    <http://developers.freshbooks.com/overview/> the FreshBooks API
-    documentation.
+    <http://developers.freshbooks.com> the FreshBooks API documentation.
 
 AUTHORS
     *   Edmund von der Burg <evdb@ecclestoad.co.uk>
