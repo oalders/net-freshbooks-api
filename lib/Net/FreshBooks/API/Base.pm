@@ -290,7 +290,7 @@ sub response_xml_to_node {
 
     if ( $response_status ne 'ok' ) {
         my $msg = XMLin( $xml );
-        warn $self->_sent_xml;
+        warn $self->_sent_xml if $self->verbose;
         my $error = "FreshBooks server returned error: '$msg->{error}'";
         $self->_handle_server_error( $error );
     }
