@@ -1,5 +1,8 @@
 Revision history for Perl module Net::FreshBooks::API
 
+0.23 2011-10-20
+    - Silences warning which emitted a lot of XML outside of verbose mode
+
 0.22 2011-09-14
     - Adds support for client contacts
 
