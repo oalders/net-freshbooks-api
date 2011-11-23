@@ -16,6 +16,11 @@ sub _fields {
 
         amount        => { is => 'ro' },
         client_id     => { is => 'rw' },
+        contacts      => {
+            is           => 'rw',
+            made_of      => 'Net::FreshBooks::API::Client::Contact',
+            presented_as => 'array',
+        },
         currency_code => { is => 'rw' },
         date          => { is => 'rw' },
         discount      => { is => 'rw' },
