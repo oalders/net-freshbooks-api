@@ -76,16 +76,19 @@ foreach my $alpha ('a'..'e') {
 }
 my $dt = DateTime->now();
 $client->organization( $dt->ymd . '-' . $dt->hms );
-#$client->verbose(1);
 
 ok( $client->update, "can update client" );
 
 my $updated = $fb->client->get({ client_id => $client->client_id });
 
-foreach my $contact (@{$client->contacts}) {
-    diag( $contact->last_name );
+foreach my $contact ( @{ $updated->contacts } ) {
+    diag(
+        sprintf(
+            "contact: %s (%s)",
+            $contact->last_name, $contact->contact_id
+        )
+    );
 }
-
 cmp_ok( scalar @{$client->contacts}, '==', 5, "5 contacts created");
 
 # create an invoice for this client
