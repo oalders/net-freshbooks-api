@@ -229,7 +229,7 @@ sub construct_element {
 
         # scalar values are text nodes
         elsif ( ref $val eq '' ) {
-            $element->appendTextChild( $key, $val );
+            $element->appendTextChild( $key, $val || '' );
         }
 
         # arrayrefs are groups of nested values
