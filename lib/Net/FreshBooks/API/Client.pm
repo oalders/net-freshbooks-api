@@ -64,7 +64,7 @@ sub add_contact {
     my $self = shift;
     my $args = shift;
     push @{ $self->{contacts} ||= [] },
-        Net::FreshBooks::API::Client::Contact->new($args);
+        Net::FreshBooks::API::Client::Contact->new( $args );
 }
 
 __PACKAGE__->meta->make_immutable();

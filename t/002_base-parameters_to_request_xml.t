@@ -15,7 +15,7 @@ my @tests = (
             page     => 1,
             per_page => 15,
         },
-        out => read_file('t/test_data/client.list.req.xml') . '',
+        out => read_file( 't/test_data/client.list.req.xml' ) . '',
     },
 
     {   name => 'nested request',
@@ -27,7 +27,7 @@ my @tests = (
                 { baz => 'bundy2' },
             ],
         },
-        out => read_file('t/test_data/nested.req.xml') . '',
+        out => read_file( 't/test_data/nested.req.xml' ) . '',
     },
 
     {   name => 'client.create request',
@@ -50,7 +50,7 @@ my @tests = (
                 p_code       => '553132',
             }
         },
-        out => read_file('t/test_data/client.create.req.xml') . '',
+        out => read_file( 't/test_data/client.create.req.xml' ) . '',
     },
 
 );
@@ -60,7 +60,7 @@ plan tests => 1 + @tests;
 my $class = 'Net::FreshBooks::API::Client';
 use_ok $class;
 
-foreach my $test (@tests) {
+foreach my $test ( @tests ) {
     my $xml = $class->parameters_to_request_xml( $test->{in} );
     is_xml( $xml, $test->{out}, $test->{name} )
         || die;

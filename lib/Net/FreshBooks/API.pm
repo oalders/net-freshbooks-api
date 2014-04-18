@@ -25,12 +25,12 @@ use Path::Class;
 use WWW::Mechanize;
 use URI;
 
-has 'account_name'        => ( is => 'rw' );
-has 'auth_token'          => ( is => 'rw' );
-has 'api_version'         => ( is => 'rw', default => 2.1 );
-has 'auth_realm'          => ( is => 'rw', default => 'FreshBooks' );
-has 'ua'                  => ( is => 'rw', lazy_build => 1 );
-has 'ua_name'             => ( is => 'rw', lazy_build => 1 );
+has 'account_name' => ( is => 'rw' );
+has 'auth_token'   => ( is => 'rw' );
+has 'api_version'  => ( is => 'rw', default => 2.1 );
+has 'auth_realm'   => ( is => 'rw', default => 'FreshBooks' );
+has 'ua'           => ( is => 'rw', lazy_build => 1 );
+has 'ua_name'      => ( is => 'rw', lazy_build => 1 );
 
 # oauth methods
 has 'access_token'        => ( is => 'rw' );
@@ -131,7 +131,7 @@ sub _build_ua {
         $self->auth_token,                # username
         ''                                # password (none - all in username)
     );
-    
+
     $ua->credentials(                     #
         $self->service_url->host_port,    # net loc
         '',                               # realm (none)
@@ -141,7 +141,6 @@ sub _build_ua {
 
     return $ua;
 }
-
 
 sub delete_everything_from_this_test_account {
 

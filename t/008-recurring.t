@@ -18,7 +18,7 @@ use_ok 'Net::FreshBooks::API';
 my $fb = Net::FreshBooks::API->new(
     {   auth_token   => FBTest->get( 'auth_token' ),
         account_name => FBTest->get( 'account_name' ),
-        verbose     => $ENV{'FB_VERBOSE'} || 0,
+        verbose      => $ENV{'FB_VERBOSE'} || 0,
     }
 );
 
@@ -29,8 +29,8 @@ diag( "verbose: " . $fb->verbose );
 
 my $recurring = $fb->recurring;
 
-foreach my $method ( sort keys %{$recurring->_fields() } ) {
-    can_ok( $recurring, $method );    
+foreach my $method ( sort keys %{ $recurring->_fields() } ) {
+    can_ok( $recurring, $method );
 }
 
 isa_ok( $recurring, "Net::FreshBooks::API::Recurring" );

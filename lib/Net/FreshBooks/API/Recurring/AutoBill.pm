@@ -44,8 +44,8 @@ sub _validates {
 
     return 0 if $self->card->number && $self->card->number =~ m{\*};
 
-    return 1 if 
-        ( $self->gateway_name
+    return 1
+        if ( $self->gateway_name
         || $self->card->name
         || $self->card->month
         || $self->card->year );

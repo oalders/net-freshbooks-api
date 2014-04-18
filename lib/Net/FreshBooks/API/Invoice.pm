@@ -14,9 +14,9 @@ has $_ => ( is => _fields()->{$_}->{is} ) for sort keys %{ _fields() };
 sub _fields {
     return {
 
-        amount        => { is => 'ro' },
-        client_id     => { is => 'rw' },
-        contacts      => {
+        amount    => { is => 'ro' },
+        client_id => { is => 'rw' },
+        contacts  => {
             is           => 'rw',
             made_of      => 'Net::FreshBooks::API::Client::Contact',
             presented_as => 'array',

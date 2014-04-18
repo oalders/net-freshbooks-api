@@ -62,7 +62,7 @@ sub update {
 
     my %args = ();
     for my $field ( $self->field_names_rw, $self->id_field ) {
-        
+
         # we're not forcing fields to be objects.  for example, setting a
         # field to undef will send an empty element, which is how autobill,
         # for example, can be deleted

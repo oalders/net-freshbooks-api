@@ -10,17 +10,17 @@ use Test::More;
 
 use Net::FreshBooks::API;
 
-plan -r 't/config.pl' && require('t/config.pl')
+plan -r 't/config.pl' && require( 't/config.pl' )
     ? ( tests => 3 )
     : ( skip_all => "Need test connection details in t/config.pl"
         . " - see t/config_sample.pl for details" );
 
-ok FBTest->get('auth_token') && FBTest->get('account_name'),
+ok FBTest->get( 'auth_token' ) && FBTest->get( 'account_name' ),
     "Could get auth_token and account_name";
 
 my $fb = Net::FreshBooks::API->new(
-    {   auth_token   => FBTest->get('auth_token'),
-        account_name => FBTest->get('account_name'),
+    {   auth_token   => FBTest->get( 'auth_token' ),
+        account_name => FBTest->get( 'account_name' ),
         verbose      => 0,
     }
 );

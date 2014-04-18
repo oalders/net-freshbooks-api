@@ -28,7 +28,7 @@ sub get_all {
     # override any pagination
     $args->{per_page} = 100;
 
-    my @all     = ();
+    my @all      = ();
     my $per_page = 100;
     my $page     = 1;
 

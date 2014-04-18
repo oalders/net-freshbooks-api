@@ -79,10 +79,10 @@ is $invoice->status, 'draft', 'status is correct';
 is $invoice->links->client_view,
     'https://hinuhinutest.freshbooks.com/inv/106252-2-80cad',
     "client_view correct";
-    
-ok( $invoice->die_on_server_error, "invoice will die");
 
-$invoice->die_on_server_error(0);
-ok (!$invoice->die_on_server_error, "die on error turned off");
+ok( $invoice->die_on_server_error, "invoice will die" );
+
+$invoice->die_on_server_error( 0 );
+ok( !$invoice->die_on_server_error, "die on error turned off" );
 
 done_testing();

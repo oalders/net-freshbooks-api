@@ -9,7 +9,7 @@ use Test::XML;
 use_ok 'Net::FreshBooks::API';
 
 my @caught_out_xml = ();
-my @fake_return_xml = map { read_file($_) . '' } (
+my @fake_return_xml = map { read_file( $_ ) . '' } (
     't/test_data/client.list.res.xml',    #
     't/test_data/client.get.res.xml',
 );
@@ -44,7 +44,7 @@ isa_ok $list, 'Net::FreshBooks::API::Iterator';
 # check that the correct xml was sent out.
 is_xml(
     $caught_out_xml[0],
-    read_file('t/test_data/client.list.req.xml') . '',
+    read_file( 't/test_data/client.list.req.xml' ) . '',
     "xml sent was correct for list"
 );
 
@@ -55,4 +55,5 @@ is $list->pages, 1, "only one page of results";
 # Get the first entry
 my $client = $list->next;
 ok $client, "got a client";
+
 #is $client->credit, 123.45, "got correct credit";

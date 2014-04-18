@@ -36,7 +36,7 @@ my $client_create_args = {
 };
 
 my @caught_out_xml = ();
-my @fake_return_xml = map { read_file($_) . '' }
+my @fake_return_xml = map { read_file( $_ ) . '' }
     ( 't/test_data/client.create.res.xml', 't/test_data/client.get.res.xml' );
 
 # Intercept the call to freshbooks with our own data
@@ -57,23 +57,23 @@ my $fb = Net::FreshBooks::API->new(
 );
 ok $fb, "created the FB object";
 
-foreach my $method ( sort keys %{$fb->client->_fields() } ) {
-    can_ok( $fb->client, $method );    
+foreach my $method ( sort keys %{ $fb->client->_fields() } ) {
+    can_ok( $fb->client, $method );
 }
 
-my $client = $fb->client->create($client_create_args);
+my $client = $fb->client->create( $client_create_args );
 ok $client,     "Got a client back";
 isa_ok $client, 'Net::FreshBooks::API::Client';
 
 # Check that the xml sent was correct.
 is_xml(
     $caught_out_xml[0],
-    read_file('t/test_data/client.create.req.xml') . '',
+    read_file( 't/test_data/client.create.req.xml' ) . '',
     "xml sent was correct for create"
 );
 is_xml(
     $caught_out_xml[1],
-    read_file('t/test_data/client.get.req.xml') . '',
+    read_file( 't/test_data/client.get.req.xml' ) . '',
     "xml sent was correct for get"
 );
 

@@ -19,9 +19,9 @@ sub new {
             croak( "$key required as an argument to new()" );
         }
     }
-    
+
     my $account_name = delete $tokens{account_name};
-    
+
     my $url = 'https://' . $account_name . '.freshbooks.com/oauth';
 
     my %create = (
@@ -109,23 +109,23 @@ sub request_access_token {
     my %params = @_;
     my $url    = $self->access_token_url;
 
-    $params{token}        = $self->request_token        unless defined $params{token};
-    $params{token_secret} = $self->request_token_secret unless defined $params{token_secret};
+    $params{token} = $self->request_token unless defined $params{token};
+    $params{token_secret} = $self->request_token_secret
+        unless defined $params{token_secret};
 
-    if ($self->oauth_1_0a) {
-        $params{verifier} = $self->verifier                             unless defined $params{verifier};
-        return $self->_error("You must pass a verified parameter when using OAuth v1.0a") unless defined $params{verifier};
+    if ( $self->oauth_1_0a ) {
+        $params{verifier} = $self->verifier unless defined $params{verifier};
+        return $self->_error(
+            "You must pass a verified parameter when using OAuth v1.0a" )
+            unless defined $params{verifier};
 
     }
 
+    my $access_token_response
+        = $self->_make_request( 'Net::OAuth::AccessTokenRequest',
+        $url, 'POST', %params, );
 
-    my $access_token_response = $self->_make_request(
-        'Net::OAuth::AccessTokenRequest',
-        $url, 'POST',
-        %params,
-    );
-
-    return $self->_decode_tokens($url, $access_token_response);
+    return $self->_decode_tokens( $url, $access_token_response );
 }
 
 sub request_request_token {
@@ -133,44 +133,49 @@ sub request_request_token {
     my %params = @_;
     my $url    = $self->request_token_url;
 
-    if ($self->oauth_1_0a) {
-        $params{callback} = $self->callback                             unless defined $params{callback};
-        return $self->_error("You must pass a callback parameter when using OAuth v1.0a") unless defined $params{callback};
+    if ( $self->oauth_1_0a ) {
+        $params{callback} = $self->callback unless defined $params{callback};
+        return $self->_error(
+            "You must pass a callback parameter when using OAuth v1.0a" )
+            unless defined $params{callback};
     }
 
-    my $request_token_response = $self->_make_request(
-        'Net::OAuth::RequestTokenRequest',
-        $url, 'POST',
-        %params);
+    my $request_token_response
+        = $self->_make_request( 'Net::OAuth::RequestTokenRequest',
+        $url, 'POST', %params );
 
-    return $self->_error("GET for $url failed: ".$request_token_response->status_line)
-      unless ( $request_token_response->is_success );
+    return $self->_error(
+        "GET for $url failed: " . $request_token_response->status_line )
+        unless ( $request_token_response->is_success );
 
     # Cast response into CGI query for EZ parameter decoding
-    my $request_token_response_query =
-      new CGI( $request_token_response->content );
+    my $request_token_response_query
+        = new CGI( $request_token_response->content );
 
     # Split out token and secret parameters from the request token response
-    $self->request_token($request_token_response_query->param('oauth_token'));
-    $self->request_token_secret($request_token_response_query->param('oauth_token_secret'));
-    $self->callback_confirmed($request_token_response_query->param('oauth_callback_confirmed'));
+    $self->request_token(
+        $request_token_response_query->param( 'oauth_token' ) );
+    $self->request_token_secret(
+        $request_token_response_query->param( 'oauth_token_secret' ) );
+    $self->callback_confirmed(
+        $request_token_response_query->param( 'oauth_callback_confirmed' ) );
 
-    return $self->_error("Response does not confirm to OAuth1.0a. oauth_callback_confirmed not received")
-     if $self->oauth_1_0a && !$self->callback_confirmed;
+    return $self->_error(
+        "Response does not confirm to OAuth1.0a. oauth_callback_confirmed not received"
+    ) if $self->oauth_1_0a && !$self->callback_confirmed;
 
 }
 
-
 sub _make_request {
-    my $self    = shift;
-    my $class   = shift;
-    my $url     = shift;
-    my $method  = uc(shift);
-    my @extra   = @_;
+    my $self   = shift;
+    my $class  = shift;
+    my $url    = shift;
+    my $method = uc( shift );
+    my @extra  = @_;
 
-    my $uri   = URI->new($url);
+    my $uri   = URI->new( $url );
     my %query = $uri->query_form;
-    $uri->query_form({});
+    $uri->query_form( {} );
 
     my $request = $class->new(
         consumer_key     => $self->consumer_key,
@@ -178,22 +183,28 @@ sub _make_request {
         request_url      => $uri,
         request_method   => $method,
         signature_method => $self->signature_method,
-        protocol_version => $self->oauth_1_0a ? Net::OAuth::PROTOCOL_VERSION_1_0A : Net::OAuth::PROTOCOL_VERSION_1_0,
-        timestamp        => time,
-        nonce            => $self->_nonce,
-        extra_params     => \%query,
+        protocol_version => $self->oauth_1_0a
+        ? Net::OAuth::PROTOCOL_VERSION_1_0A
+        : Net::OAuth::PROTOCOL_VERSION_1_0,
+        timestamp    => time,
+        nonce        => $self->_nonce,
+        extra_params => \%query,
         @extra,
     );
     $request->sign;
-    return $self->_error("Couldn't verify request! Check OAuth parameters.")
-      unless $request->verify;
+    return $self->_error( "Couldn't verify request! Check OAuth parameters." )
+        unless $request->verify;
 
-    my $params  = $request->to_hash;
-    $uri->query_form(%$params);
-    my $req      = HTTP::Request->new( $method => "$uri");
-    my $response = $self->{browser}->request($req);
-    return $self->_error("$method on ".$request->normalized_request_url." failed: ".$response->status_line." - ".$response->content)
-      unless ( $response->is_success );
+    my $params = $request->to_hash;
+    $uri->query_form( %$params );
+    my $req = HTTP::Request->new( $method => "$uri" );
+    my $response = $self->{browser}->request( $req );
+    return $self->_error( "$method on "
+            . $request->normalized_request_url
+            . " failed: "
+            . $response->status_line . " - "
+            . $response->content )
+        unless ( $response->is_success );
 
     return $response;
 }

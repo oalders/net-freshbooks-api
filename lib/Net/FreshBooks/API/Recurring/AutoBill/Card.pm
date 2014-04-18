@@ -9,9 +9,9 @@ extends 'Net::FreshBooks::API::Base';
 use Net::FreshBooks::API::Recurring::AutoBill::Card::Expiration;
 
 has 'expiration' => (
-    is      => 'rw',
+    is         => 'rw',
     lazy_build => 1,
-    handles => [ 'month', 'year' ],
+    handles    => [ 'month', 'year' ],
 );
 
 has 'name' => ( is => 'rw', );
@@ -43,7 +43,7 @@ sub _validates {
 }
 
 sub _build_expiration {
-    
+
     my $self = shift;
     return Net::FreshBooks::API::Recurring::AutoBill::Card::Expiration->new;
 }

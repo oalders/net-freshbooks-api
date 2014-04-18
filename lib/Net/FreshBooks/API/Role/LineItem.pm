@@ -12,7 +12,7 @@ sub add_line {
     my $line_args = shift;
 
     push @{ $self->{lines} ||= [] },
-        Net::FreshBooks::API::InvoiceLine->new($line_args);
+        Net::FreshBooks::API::InvoiceLine->new( $line_args );
 
     return 1;
 }

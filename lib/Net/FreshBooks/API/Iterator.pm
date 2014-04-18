@@ -41,8 +41,8 @@ sub new {
     my $parser = XML::LibXML->new();
 
     my @item_nodes =    #
-        map { $parser->parse_string( $_->toString ) }    # recreate
-        grep { $_->nodeType eq XML_ELEMENT_NODE }        # filter
+        map  { $parser->parse_string( $_->toString ) }    # recreate
+        grep { $_->nodeType eq XML_ELEMENT_NODE }         # filter
         $list->childNodes;
 
     $self->item_nodes( \@item_nodes );
@@ -50,7 +50,7 @@ sub new {
     return $self;
 }
 
-sub next {                                               ## no critic
+sub next {                                                ## no critic
     ## use critic
     my $self = shift;
 
