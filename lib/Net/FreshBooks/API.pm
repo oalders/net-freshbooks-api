@@ -2,6 +2,7 @@ use strict;
 use warnings;
 
 package Net::FreshBooks::API;
+
 use Moose;
 
 with 'Net::FreshBooks::API::Role::Common';

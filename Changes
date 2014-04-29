@@ -1,5 +1,9 @@
 Revision history for Perl module Net::FreshBooks::API
 
+{{$NEXT}}
+    - Change the no_index rule in order to get PAUSE to remove OAuthDemo from
+      02packages
+
 0.23 2011-10-20
     - Silences warning which emitted a lot of XML outside of verbose mode
     - Adds docs on how to paginate using an iterator
