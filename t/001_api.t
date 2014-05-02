@@ -1,7 +1,8 @@
 #!/usr/bin/env perl
 
 use strict;
-use Data::Dump qw( dump );
+use warnings;
+
 use Test::More tests => 8;
 
 use Net::FreshBooks::API;
@@ -44,4 +45,8 @@ ok( !$bad_name->account_name_ok, "invalid service url is not found" );
 
 my $good_name
     = Net::FreshBooks::API->new( account_name => 'netfreshbooksapi' );
-ok( $good_name->account_name_ok, "valid service url is found" );
+
+SKIP: {
+    skip 'live tests not enabled', 1, unless $ENV{FB_LIVE_TESTS};
+    ok( $good_name->account_name_ok, "valid service url is found" );
+}

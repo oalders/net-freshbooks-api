@@ -9,10 +9,12 @@ use Test::Exception;
 use Net::FreshBooks::API;
 use Test::WWW::Mechanize;
 
-plan -r 't/config.pl' && require( 't/config.pl' )
+plan -r 't/config.pl'
+    && require( 't/config.pl' )
+    && $ENV{FB_LIVE_TESTS}
     ? ( tests => 6 )
-    : ( skip_all => "Need test connection details in t/config.pl"
-        . " - see t/config_sample.pl for details" );
+    : (
+    skip_all => 'Set FB_LIVE_TESTS to true in your %ENV to run live tests' );
 
 my $test_email = FBTest->get( 'test_email' ) || die;
 

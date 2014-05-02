@@ -5,16 +5,17 @@ use warnings;
 
 use Test::More;
 use Test::Exception;
-
-use Net::FreshBooks::API;
 use Test::WWW::Mechanize;
 
-plan -r 't/config.pl' && require( 't/config.pl' )
-    ? ( tests => 7 )
-    : ( skip_all => "Need test connection details in t/config.pl"
-        . " - see t/config_sample.pl for details" );
+use Net::FreshBooks::API;
 
-# create the FB object
+plan -r 't/config.pl'
+    && require( 't/config.pl' )
+    && $ENV{FB_LIVE_TESTS}
+    ? ( tests => 7 )
+    : (
+    skip_all => 'Set FB_LIVE_TESTS to true in your %ENV to run live tests' );
+
 my $fb = Net::FreshBooks::API->new(
     {   auth_token   => FBTest->get( 'auth_token' ),
         account_name => FBTest->get( 'account_name' ),
@@ -32,7 +33,6 @@ foreach my $lang ( @{ $fb->language->get_all() } ) {
     diag $lang->code . ": " . $lang->name;
 }
 
-#diag explain $langs;
 ok( ( scalar @{$langs} != 0 ),
     "languages in test account: " . scalar @{$langs} );
 dies_ok( sub { $fb->language->get }, "get not implemented" );

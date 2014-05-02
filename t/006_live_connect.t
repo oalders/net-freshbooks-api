@@ -3,17 +3,14 @@
 use strict;
 use Test::More;
 
-#BEGIN {
-#    use Log::Log4perl;
-#    Log::Log4perl::init('t/log4perl.conf');
-#}
-
 use Net::FreshBooks::API;
 
-plan -r 't/config.pl' && require( 't/config.pl' )
+plan -r 't/config.pl'
+    && require( 't/config.pl' )
+    && $ENV{FB_LIVE_TESTS}
     ? ( tests => 3 )
-    : ( skip_all => "Need test connection details in t/config.pl"
-        . " - see t/config_sample.pl for details" );
+    : (
+    skip_all => 'Set FB_LIVE_TESTS to true in your %ENV to run live tests' );
 
 ok FBTest->get( 'auth_token' ) && FBTest->get( 'account_name' ),
     "Could get auth_token and account_name";
