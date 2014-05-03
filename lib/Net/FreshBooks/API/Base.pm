@@ -11,7 +11,7 @@ use Carp qw( carp croak );
 use Clone qw(clone);
 use Data::Dump qw( dump );
 use Scalar::Util qw( blessed reftype );
-use XML::LibXML ':libxml';
+use XML::LibXML qw( XML_ELEMENT_NODE );
 use XML::Simple;
 use LWP::UserAgent;
 

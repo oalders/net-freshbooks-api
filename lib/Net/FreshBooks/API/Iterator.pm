@@ -5,9 +5,8 @@ package Net::FreshBooks::API::Iterator;
 
 use Moose;
 
-use Data::Dump qw( dump );
 use Lingua::EN::Inflect qw( PL );
-use XML::LibXML ':libxml';
+use XML::LibXML qw( XML_ELEMENT_NODE );
 
 has 'parent_object' => ( is => 'rw' );    # The object we are iterating for
 has 'args'          => ( is => 'rw' );    # args used in the search
