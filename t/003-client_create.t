@@ -3,7 +3,7 @@
 use strict;
 use Data::Dump qw( dump );
 use Test::More;
-use File::Slurp;
+use File::Slurp::Tiny qw( read_file );
 use Sub::Override;
 use Test::XML;
 

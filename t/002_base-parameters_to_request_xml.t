@@ -4,7 +4,7 @@ use warnings;
 
 use Test::More;
 use Test::XML;
-use File::Slurp;
+use File::Slurp::Tiny qw( read_file );
 
 my @tests = (
     {   name => 'client.list request',
