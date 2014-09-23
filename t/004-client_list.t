@@ -2,7 +2,7 @@
 
 use strict;
 use Test::More tests => 8;
-use File::Slurp;
+use File::Slurp::Tiny qw( read_file );
 use Sub::Override;
 use Test::XML;
 
